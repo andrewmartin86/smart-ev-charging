@@ -28,13 +28,24 @@ class Settings:
         for vehicle in parsed['vehicles']:
             self.vehicles.append(vehicle)
 
-    def __repr__(self):
-        return json.dumps({
-            'tariffs': json.loads(repr(self.tariffs)),
-            'vehicles': json.loads(repr(self.vehicles))
-        })
+    def dict(self):
+        tariffs = []
+        for tariff in self.tariffs:
+            tariffs.append(tariff)
+
+        vehicles = []
+        for vehicle in self.vehicles:
+            vehicles.append(vehicle)
+
+        return {
+            'tariffs': tariffs,
+            'vehicles': vehicles
+        }
+
+    def save(self):
+        file = open(self.filename, 'w')
+        file.write(json.dumps(self.dict()))
+        file.close()
 
     def __del__(self):
-        file = open(self.filename, 'w')
-        file.write(repr(self))
-        file.close()
+        self.save()
