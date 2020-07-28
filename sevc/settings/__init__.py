@@ -2,6 +2,10 @@ import json
 
 
 class Settings:
+    """
+    All settings.
+    """
+    
     filename = None
 
     tariffs = []
