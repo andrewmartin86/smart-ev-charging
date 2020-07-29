@@ -2,12 +2,9 @@ import json
 
 
 class Settings:
-    """
-    All settings.
-    """
-    
     filename = None
 
+    locations = []
     tariffs = []
     vehicles = []
 
@@ -20,11 +17,14 @@ class Settings:
             file.close()
         except OSError:
             file = open(self.filename, 'w')
-            raw = '{"tariffs":[],"vehicles":[]}'
+            raw = '{"locations":[],"tariffs":[],"vehicles":[]}'
             file.write(raw)
             file.close()
 
         parsed = json.loads(raw)
+
+        for location in parsed['locations']:
+            self.locations.append(location)
 
         for tariff in parsed['tariffs']:
             self.tariffs.append(tariff)
@@ -33,6 +33,10 @@ class Settings:
             self.vehicles.append(vehicle)
 
     def dict(self):
+        locations = []
+        for location in self.locations:
+            locations.append(location)
+
         tariffs = []
         for tariff in self.tariffs:
             tariffs.append(tariff)
@@ -42,6 +46,7 @@ class Settings:
             vehicles.append(vehicle)
 
         return {
+            'locations': locations,
             'tariffs': tariffs,
             'vehicles': vehicles
         }
