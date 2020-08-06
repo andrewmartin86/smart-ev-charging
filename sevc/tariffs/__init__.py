@@ -4,8 +4,20 @@ import datetime
 class Tariff:
     rates = {}
 
+    def __init__(self, array=None):
+        if array is None:
+            array = {}
+
+        self.rates = array['rates'] or {}
+
     def update_rates(self):
         pass
+
+    def dict(self):
+        return {
+            'class': self.__class__,
+            'rates': self.rates
+        }
 
     def optimal_charge_time(self, length, finish):
         now = datetime.datetime.utcnow()

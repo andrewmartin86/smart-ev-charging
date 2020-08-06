@@ -2,21 +2,21 @@ import json
 
 
 class Settings:
-    filename = None
+    __filename = None
 
     locations = []
     tariffs = []
     vehicles = []
 
     def __init__(self, filename):
-        self.filename = filename
+        self.__filename = filename
 
         try:
-            file = open(self.filename, 'r')
+            file = open(self.__filename, 'r')
             raw = file.read()
             file.close()
         except OSError:
-            file = open(self.filename, 'w')
+            file = open(self.__filename, 'w')
             raw = '{"locations":[],"tariffs":[],"vehicles":[]}'
             file.write(raw)
             file.close()
@@ -31,6 +31,9 @@ class Settings:
 
         for vehicle in parsed['vehicles']:
             self.vehicles.append(vehicle)
+
+    def __del__(self):
+        self.save()
 
     def dict(self):
         locations = []
@@ -52,9 +55,6 @@ class Settings:
         }
 
     def save(self):
-        file = open(self.filename, 'w')
+        file = open(self.__filename, 'w')
         file.write(json.dumps(self.dict()))
         file.close()
-
-    def __del__(self):
-        self.save()
