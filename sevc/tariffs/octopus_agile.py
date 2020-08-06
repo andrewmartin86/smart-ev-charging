@@ -15,21 +15,27 @@ class OctopusAgileTariff(Tariff):
 
         super().__init__(array)
 
-        self.api_endpoint = array['api_endpoint'] or input("""
-        Log into your Octopus account and go to https://octopus.energy/dashboard/developer/
-        Under Unit rates, you should see a web address.
-        Please enter that here: """)
+        if 'api_endpoint' in array:
+            self.api_endpoint = array['api_endpoint']
+        else:
+            self.api_endpoint = input("""
+Log into your Octopus account and go to https://octopus.energy/dashboard/developer/
+Under Unit rates, you should see a web address.
+Please enter that here: """)
 
-        self.api_key = array['api_key'] or input("""
-        Log into your Octopus account and go to https://octopus.energy/dashboard/developer/
-        Under Authentication, you should see an API key.
-        Please enter that here: """)
+        if 'api_key' in array:
+            self.api_key = array['api_key']
+        else:
+            self.api_key = input("""
+Log into your Octopus account and go to https://octopus.energy/dashboard/developer/
+Under Authentication, you should see an API key.
+Please enter that here: """)
 
     def dict(self):
-        return super().dict() + {
-            'api_endpoint': self.api_endpoint,
+        return {**super().dict(), **{
+            'api_end_point': self.api_endpoint,
             'api_key': self.api_key
-        }
+        }}
 
     def update_rates(self):
         request = requests.get(self.api_endpoint, auth=HTTPBasicAuth(self.api_key, ''))
@@ -38,9 +44,8 @@ class OctopusAgileTariff(Tariff):
             return
 
         parsed = request.json()
-        rates = parsed['results']
         self.rates = {}
 
-        for rate in rates:
-            time = dateutil.parser.parse(rate['valid_from'])
-            self.rates[time.timestamp()] = rates['value_inc_vat']
+        for result in parsed['results']:
+            time = dateutil.parser.parse(result['valid_from'])
+            self.rates[int(time.timestamp())] = result['value_inc_vat']

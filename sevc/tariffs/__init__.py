@@ -2,20 +2,30 @@ import datetime
 
 
 class Tariff:
+    name = ''
     rates = {}
 
     def __init__(self, array=None):
         if array is None:
             array = {}
 
-        self.rates = array['rates'] or {}
+        if 'name' in array:
+            self.name = array['name']
+        else:
+            self.name = input('Please enter a name for this tariff: ')
+
+        if 'rates' in array:
+            self.rates = array['rates']
+        else:
+            self.rates = {}
 
     def update_rates(self):
         pass
 
     def dict(self):
         return {
-            'class': self.__class__,
+            'class': self.__class__.__name__,
+            'name': self.name,
             'rates': self.rates
         }
 

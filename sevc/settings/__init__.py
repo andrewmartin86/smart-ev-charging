@@ -42,7 +42,7 @@ class Settings:
 
         tariffs = []
         for tariff in self.tariffs:
-            tariffs.append(tariff)
+            tariffs.append(tariff.dict())
 
         vehicles = []
         for vehicle in self.vehicles:
