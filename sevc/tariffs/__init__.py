@@ -3,7 +3,7 @@ import datetime
 
 class Tariff:
     name = ''
-    rates = {}
+    rates = []
 
     def __init__(self, array=None):
         if array is None:
@@ -14,19 +14,32 @@ class Tariff:
         else:
             self.name = input('Please enter a name for this tariff: ')
 
+        self.rates = []
         if 'rates' in array:
-            self.rates = array['rates']
-        else:
-            self.rates = {}
+            for rate in array['rates']:
+                self.rates.append({
+                    'start': datetime.datetime.utcfromtimestamp(rate['start']),
+                    'end': datetime.datetime.utcfromtimestamp(rate['end']),
+                    'rate': float(rate['float'])
+                })
 
     def update_rates(self):
         pass
 
     def dict(self):
+        rates = []
+
+        for rate in self.rates:
+            rates.append({
+                'start': rate['start'].timestamp(),
+                'end': rate['end'].timestamp(),
+                'rate': float(rate['rate'])
+            })
+
         return {
             'class': self.__class__.__name__,
             'name': self.name,
-            'rates': self.rates
+            'rates': rates
         }
 
     def optimal_charge_time(self, length, finish):
@@ -35,23 +48,16 @@ class Tariff:
         if now + length >= finish:
             return now
 
+        self._clear_rates()
         rates = []
 
-        for timestamp in self.rates:
-            time = datetime.datetime.utcfromtimestamp(timestamp)
-
-            if now > time or time > finish:
+        for rate in self.rates:
+            if rate['start'] > finish:
                 continue
 
-            if len(rates) > 0:
-                rates[-1]['end'] = time
+            rates.append(rate)
 
-            rates.append({
-                'start': time,
-                'end': None,
-                'rate': self.rates[timestamp]
-            })
-
+        rates[0]['start'] = now
         rates[-1]['end'] = finish
 
         if rates[0]['start'] + length >= finish:
@@ -93,3 +99,15 @@ class Tariff:
                 optimal_time = time
 
         return optimal_time
+
+    def _clear_rates(self):
+        rates = []
+        now = datetime.datetime.utcnow()
+
+        for rate in self.rates:
+            if rate['end'] < now:
+                continue
+
+            rates.append(rate)
+
+        self.rates = rates

@@ -1,8 +1,9 @@
 from sevc.tariffs import Tariff
 
 import dateutil.parser
+import dateutil.tz.tz
 import requests
-from requests.auth import HTTPBasicAuth
+import requests.auth
 
 
 class OctopusAgileTariff(Tariff):
@@ -32,20 +33,26 @@ Under Authentication, you should see an API key.
 Please enter that here: """)
 
     def dict(self):
-        return {**super().dict(), **{
-            'api_end_point': self.api_endpoint,
-            'api_key': self.api_key
-        }}
+        return {
+            **super().dict(),
+            **{
+                'api_end_point': self.api_endpoint,
+                'api_key': self.api_key
+            }
+        }
 
     def update_rates(self):
-        request = requests.get(self.api_endpoint, auth=HTTPBasicAuth(self.api_key, ''))
+        request = requests.get(self.api_endpoint, auth=requests.auth.HTTPBasicAuth(self.api_key, ''))
 
         if request.status_code != 200:
             return
 
         parsed = request.json()
-        self.rates = {}
+        self._clear_rates()
 
         for result in parsed['results']:
-            time = dateutil.parser.parse(result['valid_from'])
-            self.rates[int(time.timestamp())] = result['value_inc_vat']
+            self.rates.append({
+                'start': dateutil.parser.isoparse(result['valid_from']).astimezone(dateutil.tz.UTC),
+                'end': dateutil.parser.isoparse(result['valid_to']).astimezone(dateutil.tz.UTC),
+                'rate': float(result['value_inc_vat'])
+            })
