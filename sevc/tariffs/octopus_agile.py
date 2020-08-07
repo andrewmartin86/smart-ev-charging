@@ -1,12 +1,11 @@
-from sevc.tariffs import Tariff
-
 import dateutil.parser
 import dateutil.tz.tz
 import requests
 import requests.auth
+import sevc.tariffs
 
 
-class OctopusAgileTariff(Tariff):
+class OctopusAgileTariff(sevc.tariffs.Tariff):
     api_endpoint = ''
     api_key = ''
 
@@ -36,7 +35,7 @@ Please enter that here: """)
         return {
             **super().dict(),
             **{
-                'api_end_point': self.api_endpoint,
+                'api_endpoint': self.api_endpoint,
                 'api_key': self.api_key
             }
         }

@@ -1,4 +1,6 @@
+import importlib
 import json
+import sevc.tariffs
 
 
 class Settings:
@@ -27,7 +29,7 @@ class Settings:
             self.locations.append(location)
 
         for tariff in parsed['tariffs']:
-            self.tariffs.append(tariff)
+            self.tariffs.append(sevc.tariffs.from_dict(tariff))
 
         for vehicle in parsed['vehicles']:
             self.vehicles.append(vehicle)
@@ -56,5 +58,5 @@ class Settings:
 
     def save(self):
         file = open(self.__filename, 'w')
-        file.write(json.dumps(self.dict()))
+        file.write(json.dumps(self.dict(), separators=(',', ':')))
         file.close()

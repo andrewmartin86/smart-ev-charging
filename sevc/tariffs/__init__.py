@@ -1,4 +1,5 @@
 import datetime
+import importlib
 
 
 class Tariff:
@@ -37,6 +38,7 @@ class Tariff:
             })
 
         return {
+            'module': self.__class__.__module__,
             'class': self.__class__.__name__,
             'name': self.name,
             'rates': rates
@@ -111,3 +113,9 @@ class Tariff:
             rates.append(rate)
 
         self.rates = rates
+
+
+def from_dict(array):
+    module = importlib.import_module(array['module'])
+    cls = getattr(module, array['class'])
+    return cls(array)
