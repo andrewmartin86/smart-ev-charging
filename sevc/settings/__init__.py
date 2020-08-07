@@ -17,7 +17,7 @@ class Settings:
             file = open(self.__filename, 'r')
             raw = file.read()
             file.close()
-        except OSError:
+        except IOError:
             file = open(self.__filename, 'w')
             raw = '{"locations":[],"tariffs":[],"vehicles":[]}'
             file.write(raw)
