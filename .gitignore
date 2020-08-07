@@ -1,5 +1,4 @@
 *.pyc
 */*.pyc
 .idea/
-sevc.json
-
+var/
