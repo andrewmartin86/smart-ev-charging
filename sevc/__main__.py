@@ -2,9 +2,9 @@ import os
 import sevc.settings
 
 
-path = os.path.dirname(os.path.realpath(__file__)) + '/../var'
+base_dir = os.path.realpath(os.path.dirname(__file__) + '/..')
 
-if not os.path.isdir(path):
-    os.mkdir(path, mode=0o777)
+if not os.path.isdir(base_dir + '/var'):
+    os.mkdir(base_dir + '/var', 0o777)
 
-settings = sevc.settings.Settings(path + '/sevc.json')
+settings = sevc.settings.Settings(base_dir + '/var/sevc.json')
