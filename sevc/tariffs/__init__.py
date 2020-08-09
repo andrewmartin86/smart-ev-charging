@@ -1,40 +1,45 @@
-import datetime
 import importlib
 import importlib.util
 import inspect
 import pkgutil
-import sys
+
+from datetime import datetime
+from datetime import timedelta
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
 
 class Tariff:
-    name = ''
-    rates = []
+    _name: str = ''
+    _rates: List[Dict[str, Union[datetime, float]]] = []
 
-    def __init__(self, array):
+    def __init__(self, array: Optional[dict] = None):
         if array is None:
             array = {}
 
         if 'name' in array:
-            self.name = array['name']
+            self._name = array['name']
         else:
-            self.name = input('Please enter a name for this tariff: ')
+            self._name = input('Please enter a name for this tariff: ')
 
-        self.rates = []
+        self._rates = []
         if 'rates' in array:
             for rate in array['rates']:
-                self.rates.append({
-                    'start': datetime.datetime.utcfromtimestamp(rate['start']),
-                    'end': datetime.datetime.utcfromtimestamp(rate['end']),
+                self._rates.append({
+                    'start': datetime.utcfromtimestamp(rate['start']),
+                    'end': datetime.utcfromtimestamp(rate['end']),
                     'rate': float(rate['float'])
                 })
 
-    def update_rates(self):
+    def update_rates(self) -> None:
         pass
 
-    def dict(self):
+    def dict(self) -> dict:
         rates = []
 
-        for rate in self.rates:
+        for rate in self._rates:
             rates.append({
                 'start': rate['start'].timestamp(),
                 'end': rate['end'].timestamp(),
@@ -44,12 +49,12 @@ class Tariff:
         return {
             'module': self.__class__.__module__,
             'class': self.__class__.__name__,
-            'name': self.name,
+            'name': self._name,
             'rates': rates
         }
 
-    def optimal_charge_time(self, length, finish):
-        now = datetime.datetime.utcnow()
+    def optimal_charge_time(self, length: timedelta, finish: datetime) -> datetime:
+        now = datetime.utcnow()
 
         if now + length >= finish:
             return now
@@ -57,7 +62,7 @@ class Tariff:
         self._clear_rates()
         rates = []
 
-        for rate in self.rates:
+        for rate in self._rates:
             if rate['start'] > finish:
                 continue
 
@@ -106,20 +111,20 @@ class Tariff:
 
         return optimal_time
 
-    def _clear_rates(self):
+    def _clear_rates(self) -> None:
         rates = []
-        now = datetime.datetime.utcnow()
+        now = datetime.utcnow()
 
-        for rate in self.rates:
+        for rate in self._rates:
             if rate['end'] < now:
                 continue
 
             rates.append(rate)
 
-        self.rates = rates
+        self._rates = rates
 
 
-def create():
+def create() -> Tariff:
     print()
 
     classes = []
@@ -148,7 +153,7 @@ Please choose a tariff type: """)
     return cls()
 
 
-def from_dict(array):
+def from_dict(array: dict) -> Tariff:
     module = importlib.import_module(array['module'])
     cls = getattr(module, array['class'])
     return cls(array)

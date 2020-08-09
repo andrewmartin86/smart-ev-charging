@@ -1,16 +1,18 @@
-import importlib
 import json
 import sevc.tariffs
 
+from sevc.tariffs import Tariff
+from typing import List
+
 
 class Settings:
-    __filename = None
+    __filename: str = None
 
-    locations = []
-    tariffs = []
-    vehicles = []
+    locations: list = []
+    tariffs: List[Tariff] = []
+    vehicles: list = []
 
-    def __init__(self, filename):
+    def __init__(self, filename: str):
         self.__filename = filename
 
         try:
@@ -40,7 +42,7 @@ class Settings:
     def __del__(self):
         self.save()
 
-    def dict(self):
+    def dict(self) -> dict:
         locations = []
         for location in self.locations:
             locations.append(location)
@@ -59,7 +61,7 @@ class Settings:
             'vehicles': vehicles
         }
 
-    def save(self):
+    def save(self) -> None:
         file = open(self.__filename, 'w')
         file.write(json.dumps(self.dict(), separators=(',', ':')))
         file.close()
