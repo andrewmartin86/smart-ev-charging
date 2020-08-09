@@ -43,6 +43,8 @@ class Settings:
         self.save()
 
     def dict(self) -> dict:
+        """Output the object as a dictionary"""
+        
         locations = []
         for location in self.locations:
             locations.append(location)
@@ -62,6 +64,8 @@ class Settings:
         }
 
     def save(self) -> None:
+        """Save the settings to the file"""
+
         file = open(self.__filename, 'w')
         file.write(json.dumps(self.dict(), separators=(',', ':')))
         file.close()

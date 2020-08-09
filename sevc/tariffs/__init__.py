@@ -34,9 +34,13 @@ class Tariff:
                 })
 
     def update_rates(self) -> None:
+        """Update the unit rates"""
+
         pass
 
     def dict(self) -> dict:
+        """Output the object as a dictionary"""
+
         rates = []
 
         for rate in self._rates:
@@ -54,6 +58,8 @@ class Tariff:
         }
 
     def optimal_charge_time(self, length: timedelta, finish: datetime) -> datetime:
+        """Calculate the optimal start time for a charge"""
+
         now = datetime.utcnow()
 
         if now + length >= finish:
@@ -112,6 +118,8 @@ class Tariff:
         return optimal_time
 
     def _clear_rates(self) -> None:
+        """Clear historic rates"""
+
         rates = []
         now = datetime.utcnow()
 
@@ -125,6 +133,8 @@ class Tariff:
 
 
 def create() -> Tariff:
+    """Choose a class to create a new instance"""
+
     print()
 
     classes = []
@@ -154,6 +164,8 @@ Please choose a tariff type: """)
 
 
 def from_dict(array: dict) -> Tariff:
+    """Create an object from a dictionary"""
+
     module = importlib.import_module(array['module'])
     cls = getattr(module, array['class'])
     return cls(array)

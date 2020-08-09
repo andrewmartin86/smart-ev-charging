@@ -34,6 +34,8 @@ Under Authentication, you should see an API key.
 Please enter that here: """)
 
     def dict(self) -> dict:
+        """Output the object as a dictionary"""
+
         return {
             **super().dict(),
             **{
@@ -43,6 +45,8 @@ Please enter that here: """)
         }
 
     def update_rates(self) -> None:
+        """Update the rates from the API"""
+
         request = requests.get(self.__api_endpoint, auth=HTTPBasicAuth(self.__api_key, ''))
 
         if request.status_code != 200:
