@@ -1,12 +1,16 @@
 import datetime
 import importlib
+import importlib.util
+import inspect
+import pkgutil
+import sys
 
 
 class Tariff:
     name = ''
     rates = []
 
-    def __init__(self, array=None):
+    def __init__(self, array):
         if array is None:
             array = {}
 
@@ -113,6 +117,35 @@ class Tariff:
             rates.append(rate)
 
         self.rates = rates
+
+
+def create():
+    print()
+
+    classes = []
+    i = 0
+
+    for importer, modname, ispkg in pkgutil.iter_modules(__path__):
+        spec = importer.find_spec(modname)
+        module = spec.loader.load_module(modname)
+        members = inspect.getmembers(module, inspect.isclass)
+
+        for name, obj in members:
+            i += 1
+            print(str(i) + ': ' + name)
+
+            classes.append({
+                'module': module,
+                'class': name
+            })
+
+    class_id = input("""
+Please choose a tariff type: """)
+
+    class_def = classes[int(class_id) - 1]
+    module = class_def['module']
+    cls = getattr(module, class_def['class'])
+    return cls()
 
 
 def from_dict(array):

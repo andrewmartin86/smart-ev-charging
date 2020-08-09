@@ -31,6 +31,9 @@ class Settings:
         for tariff in parsed['tariffs']:
             self.tariffs.append(sevc.tariffs.from_dict(tariff))
 
+        if len(self.tariffs) == 0:
+            self.tariffs.append(sevc.tariffs.create())
+
         for vehicle in parsed['vehicles']:
             self.vehicles.append(vehicle)
 
