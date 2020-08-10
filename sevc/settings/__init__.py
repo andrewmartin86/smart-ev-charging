@@ -6,7 +6,7 @@ from typing import List
 
 
 class Settings:
-    __filename: str = None
+    __filename: str = ''
 
     locations: list = []
     tariffs: List[Tariff] = []

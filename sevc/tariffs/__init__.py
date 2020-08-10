@@ -2,6 +2,7 @@ import importlib
 import importlib.util
 import inspect
 import pkgutil
+import sevc
 
 from datetime import datetime
 from datetime import timedelta
@@ -14,6 +15,9 @@ from typing import Union
 class Tariff:
     _name: str = ''
     _rates: List[Dict[str, Union[datetime, float]]] = []
+
+    __module: str = ''
+    __class: str = ''
 
     def __init__(self, array: Optional[dict] = None):
         if array is None:
@@ -33,9 +37,18 @@ class Tariff:
                     'rate': float(rate['float'])
                 })
 
+        if 'module' in array:
+            self.__module = array['module']
+        else:
+            self.__module = 'sevc.tariffs.' + self.__class__.__module__
+
+        if 'class' in array:
+            self.__class = array['class']
+        else:
+            self.__class = self.__class__.__name__
+
     def update_rates(self) -> None:
         """Update the unit rates"""
-
         pass
 
     def dict(self) -> dict:
@@ -51,8 +64,8 @@ class Tariff:
             })
 
         return {
-            'module': self.__class__.__module__,
-            'class': self.__class__.__name__,
+            'module': self.__module,
+            'class': self.__class,
             'name': self._name,
             'rates': rates
         }
@@ -143,7 +156,7 @@ def create() -> Tariff:
     for importer, modname, ispkg in pkgutil.iter_modules(__path__):
         spec = importer.find_spec(modname)
         module = spec.loader.load_module(modname)
-        members = inspect.getmembers(module, inspect.isclass)
+        members = inspect.getmembers(module, lambda member: sevc.is_subclass_of(member, Tariff))
 
         for name, obj in members:
             i += 1

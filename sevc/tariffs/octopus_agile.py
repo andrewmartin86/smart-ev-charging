@@ -8,8 +8,8 @@ from typing import Optional
 
 
 class OctopusAgileTariff(Tariff):
-    __api_endpoint = ''
-    __api_key = ''
+    __api_endpoint: str = ''
+    __api_key: str = ''
 
     def __init__(self, array: Optional[dict] = None):
         if array is None:
@@ -22,7 +22,7 @@ class OctopusAgileTariff(Tariff):
         else:
             self.__api_endpoint = input("""
 Log into your Octopus account and go to https://octopus.energy/dashboard/developer/
-Under Unit _rates, you should see a web address.
+Under Unit Rates, you should see a web address.
 Please enter that here: """)
 
         if 'api_key' in array:
