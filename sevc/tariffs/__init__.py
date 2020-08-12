@@ -3,6 +3,7 @@ import importlib.util
 import inspect
 import pkgutil
 import sevc
+import uuid
 
 from datetime import datetime
 from datetime import timedelta
@@ -20,10 +21,16 @@ class Tariff:
 
     __module: str = ''
     __class: str = ''
+    __uuid: str = ''
 
     def __init__(self, array: Optional[dict] = None):
         if array is None:
             array = {}
+
+        if 'uuid' in array:
+            self.__uuid = array['uuid']
+        else:
+            self.__uuid = str(uuid.uuid1())
 
         if 'module' in array:
             self.__module = array['module']
@@ -66,6 +73,7 @@ class Tariff:
             })
 
         return {
+            'uuid': self.__uuid,
             'module': self.__module,
             'class': self.__class,
             'name': self._name,
