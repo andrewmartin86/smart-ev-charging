@@ -11,6 +11,8 @@ from typing import List
 from typing import Optional
 from typing import Union
 
+from dateutil.tz import UTC
+
 
 class Tariff:
     _name: str = ''
@@ -23,20 +25,6 @@ class Tariff:
         if array is None:
             array = {}
 
-        if 'name' in array:
-            self._name = array['name']
-        else:
-            self._name = input('Please enter a name for this tariff: ')
-
-        self._rates = []
-        if 'rates' in array:
-            for rate in array['rates']:
-                self._rates.append({
-                    'start': datetime.utcfromtimestamp(rate['start']),
-                    'end': datetime.utcfromtimestamp(rate['end']),
-                    'rate': float(rate['float'])
-                })
-
         if 'module' in array:
             self.__module = array['module']
         else:
@@ -46,6 +34,20 @@ class Tariff:
             self.__class = array['class']
         else:
             self.__class = self.__class__.__name__
+
+        if 'name' in array:
+            self._name = array['name']
+        else:
+            self._name = input('Please enter a name for this tariff: ')
+
+        self._rates = []
+        if 'rates' in array:
+            for rate in array['rates']:
+                self._rates.append({
+                    'start': datetime.fromtimestamp(rate['start'], UTC),
+                    'end': datetime.fromtimestamp(rate['end'], UTC),
+                    'rate': float(rate['rate'])
+                })
 
     def update_rates(self) -> None:
         """Update the unit rates"""
@@ -73,7 +75,7 @@ class Tariff:
     def optimal_charge_time(self, length: timedelta, finish: datetime) -> datetime:
         """Calculate the optimal start time for a charge"""
 
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
 
         if now + length >= finish:
             return now
@@ -109,7 +111,7 @@ class Tariff:
 
                 full_period_cost = rate['rate'] * (rate['end'] - rate['start']).seconds / 3600
 
-                if start['start'] + length < rate['end']:
+                if start['start'] + length >= rate['end']:
                     cost += full_period_cost
                     continue
 
@@ -133,8 +135,11 @@ class Tariff:
     def _clear_rates(self) -> None:
         """Clear historic rates"""
 
+        if len(self._rates) == 0:
+            return
+
         rates = []
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
 
         for rate in self._rates:
             if rate['end'] < now:
