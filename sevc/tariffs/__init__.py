@@ -179,7 +179,6 @@ def create() -> Tariff:
                 'class': name
             })
 
-    print()
     class_def = classes[int(input('Please choose a tariff type: ')) - 1]
     cls = getattr(class_def['module'], class_def['class'])
     return cls()

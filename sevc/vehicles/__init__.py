@@ -7,12 +7,13 @@ import uuid as py_uuid
 from datetime import datetime
 from datetime import time
 from datetime import timedelta
-from dateutil.tz import UTC
 from sevc.locations import Location
 from sevc.tariffs import Tariff
 from typing import Dict
 from typing import List
 from typing import Optional
+
+from dateutil.tz import UTC
 
 
 DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -225,7 +226,6 @@ def create() -> Vehicle:
                 'class': name
             })
 
-        print()
         class_def = classes[int(input('Please choose a vehicle type: ')) - 1]
         cls = getattr(class_def['module'], class_def['class'])
         return cls()

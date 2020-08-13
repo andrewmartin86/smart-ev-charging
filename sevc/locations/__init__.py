@@ -54,7 +54,6 @@ class Location:
                 t += 1
                 print(str(t) + ': ' + tariffs[tariff_uuid].name)
 
-            print()
             self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: ')) - 1]
 
     def dict(self) -> dict:
