@@ -100,14 +100,15 @@ class TeslaVehicle(Vehicle):
         else:
             return sevc.vehicles.WAITING
 
-    def __api_request(self, endpoint: str, params: Optional[dict] = None, method: str = 'GET',
-                      result_key: str = 'response'):
+    def __api_request(self, endpoint: str, params: Optional[dict] = None,
+                      method: str = 'GET', result_key: str = 'response', vehicle_specific: bool = True):
         """Send a request to the API and return the response"""
 
         if params is None:
             params = {}
 
-        if self.__vehicle_id is not None:
+        if vehicle_specific and self.__vehicle_id is not None:
+            # All vehicle-specific endpoints share the same node
             endpoint = 'vehicles/' + self.__vehicle_id + '/' + endpoint
 
         request = requests.request(method, API_URI + 'api/1/' + endpoint, params=params, headers={
@@ -127,15 +128,14 @@ class TeslaVehicle(Vehicle):
     def __login(self) -> None:
         """Log into the API to obtain an access token"""
 
-        email = input("""Please enter your email address to log into Tesla: """)
-        password = input("""Please enter your Tesla password: """)
+        # Note that we don't store the email and password, not even as a variable
 
         request = requests.post(API_URI + 'oauth/token', {
             'grant_type': 'password',
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET,
-            'email': email,
-            'password': password
+            'email': input("""Please enter your email address to log into Tesla: """),
+            'password': input("""Please enter your Tesla password: """)
         })
 
         if request.status_code != 200:
@@ -145,12 +145,14 @@ class TeslaVehicle(Vehicle):
 
         self.__access_token = parsed['access_token']
         self.__refresh_token = parsed['refresh_token']
+
+        # Use the day before the expiry date to make sure the token doesn't expire
         self.__token_expires = datetime.now(UTC) + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
 
     def __obtain_vehicle_id(self) -> None:
         """Obtain the vehicle ID"""
 
-        vehicles = self.__api_request('vehicles')
+        vehicles = self.__api_request('vehicles', vehicle_specific=False)
 
         if vehicles is None:
             return
@@ -160,6 +162,8 @@ class TeslaVehicle(Vehicle):
 
         for vehicle in vehicles:
             i += 1
+
+            # The model ID is buried amongst the option codes
             options = vehicle['option_codes'].split(',')
 
             if 'MDLX' in options:
@@ -169,6 +173,7 @@ class TeslaVehicle(Vehicle):
             elif 'MDLY' in options:
                 model = 'Model Y'
             else:
+                # Model S has many possible IDs
                 model = 'Model S'
 
             print(str(i) + ': ' + vehicle['display_name'] + ' (' + model + ')')
@@ -179,6 +184,7 @@ class TeslaVehicle(Vehicle):
         """Refresh the API access token"""
 
         if self.__refresh_token is None:
+            # No refresh token, so log in from scratch
             return self.__login()
 
         request = requests.post(API_URI + 'oauth/token', {
@@ -195,18 +201,20 @@ class TeslaVehicle(Vehicle):
 
         self.__access_token = parsed['access_token']
         self.__refresh_token = parsed['refresh_token']
+
+        # Use the day before the expiry date to make sure the token doesn't expire
         self.__token_expires = datetime.now(UTC) + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
 
     def __wake(self) -> bool:
         """Wake up the vehicle"""
 
-        for i in range(18):
-            response = self.__api_request('vehicle_data')
-
-            if response is not None:
+        for i in range(18):  # 18 * 10 seconds = 3 minutes
+            if self.__api_request('vehicle_data') is not None:  # is the vehicle awake?
                 return True
 
             self.__api_request('wake_up', method='POST')
+
+            # Don't flood the API
             time.sleep(10)
 
-        return False
+        return self.__api_request('vehicle_data') is not None  # check one last time

@@ -73,9 +73,11 @@ class OctopusAgileTariff(Tariff):
         rates = sorted(self._rates, key=lambda item: item['start'])
         self._rates = rates
 
+        # Updates are normally done by 4pm
         self.__api_next_update = now.replace(hour=17, minute=0, second=0, microsecond=0)
 
         if self.__api_next_update <= now:
+            # Today's update has already happened: wait until tomorrow
             self.__api_next_update += timedelta(days=1)
 
     def __obtain_api_details(self) -> None:

@@ -27,10 +27,10 @@ CHARGING = 5
 COMPLETE = 6
 
 STATUS_WAIT = {
-    UNRESPONSIVE: 15,
-    DRIVING: 5,
-    CHARGING: 60,
-    COMPLETE: 360
+    UNRESPONSIVE: 15,  # give a bit of time for the vehicle to become responsive again
+    DRIVING: 5,        # the vehicle status could change at any time
+    CHARGING: 60,      # leave the vehicle alone while charging
+    COMPLETE: 360      # the vehicle is unlikely to need charging any time soon
 }
 
 
@@ -149,6 +149,7 @@ class Vehicle:
             if self.__status == UNPLUGGED:
                 self.__next_ping = now + timedelta(hours=3)
             else:
+                # The vehicle has just arrived at this location, so give a bit more time to plug in
                 self.__next_ping = now + timedelta(minutes=10)
                 self.__status = UNPLUGGED
 
@@ -159,7 +160,7 @@ class Vehicle:
 
         if charge_time is None:
             if not self._start_charging():
-                self.__next_ping = now + timedelta(minutes=1)
+                self.__next_ping = now  # try again next ping
                 self.__status = WAITING
                 return
 
@@ -172,13 +173,15 @@ class Vehicle:
         now = datetime.now(UTC)
 
         if start_time <= now and self._start_charging():
-            self.__next_ping = finish_time + timedelta(minutes=30)
+            self.__next_ping = finish_time + timedelta(minutes=30)  # leave the vehicle alone while charging
             self.__status = CHARGING
             return
 
         if now + timedelta(minutes=10) >= start_time:
+            # Nearly time to charge: try again in a minute in case it's needed earlier
             self.__next_ping = now + timedelta(minutes=1)
         else:
+            # Leave the vehicle alone until it's nearly time to charge
             self.__next_ping = finish_time - timedelta(minutes=10)
 
         self.__status = WAITING
@@ -194,10 +197,11 @@ class Vehicle:
         finish = self.__finish_times[date.weekday()]
         rtn = date.replace(hour=finish.hour, minute=finish.minute, second=finish.second, microsecond=finish.microsecond)
 
-        if rtn > now:
-            return rtn.astimezone(UTC)
+        if rtn < now:
+            # Today's finish time has already passed: return tomorrow's
+            return self.__next_finish(date + timedelta(days=1))
 
-        return self.__next_finish(date + timedelta(days=1))
+        return rtn.astimezone(UTC)
 
     def __obtain_finish_times(self) -> None:
         print()
@@ -210,7 +214,7 @@ class Vehicle:
         for day in DAYS:
             finish_time = input(day + ': ')
 
-            if finish_time == '' and last_time is not None:
+            if last_time is not None and finish_time == '':
                 finish_time = last_time
 
             last_time = finish_time

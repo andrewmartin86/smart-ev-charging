@@ -73,8 +73,8 @@ class Tariff:
 
         for rate in self._rates:
             rtn['rates'].append({
-                'start': rate['start'].timestamp(),
-                'end': rate['end'].timestamp(),
+                'start': int(rate['start'].timestamp()),
+                'end': int(rate['end'].timestamp()),
                 'rate': float(rate['rate'])
             })
 
