@@ -28,7 +28,10 @@ class Settings:
             file.write(raw)
             file.close()
 
-        parsed = json.loads(raw)
+        if raw == '':
+            parsed = {}
+        else:
+            parsed = json.loads(raw)
 
         if 'tariffs' in parsed:
             for uuid in parsed['tariffs']:

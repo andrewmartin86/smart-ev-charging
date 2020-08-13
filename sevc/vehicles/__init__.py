@@ -41,7 +41,7 @@ class Vehicle:
     __module: str = ''
     __class: str = ''
     __next_ping: Optional[datetime] = None
-    __status: Optional[int] = None
+    __status: int = UNRESPONSIVE
     __finish_times: List[time] = []
 
     def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
