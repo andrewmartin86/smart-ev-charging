@@ -1,8 +1,10 @@
 import json
 import sevc.tariffs
+import sevc.vehicles
 
 from sevc.locations import Location
 from sevc.tariffs import Tariff
+from sevc.vehicles import Vehicle
 from typing import Dict
 
 
@@ -11,7 +13,7 @@ class Settings:
 
     locations: Dict[str, Location] = {}
     tariffs: Dict[str, Tariff] = {}
-    vehicles: dict = {}
+    vehicles: Dict[str, Vehicle] = {}
 
     def __init__(self, filename: str):
         self.__filename = filename
@@ -43,7 +45,11 @@ class Settings:
             self.locations[location.uuid] = location
 
         for uuid in parsed['vehicles']:
-            self.vehicles[uuid] = parsed['vehicles'][uuid]
+            self.vehicles[uuid] = sevc.vehicles.from_dict(parsed['vehicles'][uuid], uuid)
+
+        if len(self.vehicles) == 0:
+            vehicle = sevc.vehicles.create()
+            self.vehicles[vehicle.uuid] = vehicle
 
     def __del__(self):
         self.save()
@@ -64,7 +70,7 @@ class Settings:
             rtn['tariffs'][uuid] = self.tariffs[uuid].dict()
 
         for uuid in self.vehicles:
-            rtn['vehicles'][uuid] = self.vehicles[uuid]
+            rtn['vehicles'][uuid] = self.vehicles[uuid].dict()
 
         return rtn
 
