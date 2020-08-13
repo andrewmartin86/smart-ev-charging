@@ -72,17 +72,7 @@ class Vehicle:
             for finish_time in array['finish_times']:
                 self.__finish_times.append(time.fromisoformat(finish_time))
         else:
-            last_time: Optional[str] = None
-            for day in DAYS:
-                if last_time is None:
-                    finish_time = input('Please enter a finish time for ' + day + '\'s charge (hh:mm): ')
-                else:
-                    finish_time = input('Please enter a finish time for ' + day + '\'s charge (leave blank to use ' + last_time + '): ')
-                    if finish_time == '':
-                        finish_time = last_time
-
-                last_time = finish_time
-                self.__finish_times.append(time.fromisoformat(finish_time))
+            self.__obtain_finish_times()
 
         if 'next_ping' in array:
             self.__next_ping = datetime.fromtimestamp(array['next_ping'], UTC)
@@ -205,6 +195,23 @@ class Vehicle:
             return rtn.astimezone(UTC)
 
         return self.__next_finish(date + timedelta(days=1))
+
+    def __obtain_finish_times(self) -> None:
+        print()
+        print('Please enter finish times for each day\'s charge (e.g. 07:00 or 23:00).')
+        print('You may leave blank to use same time as previous day.')
+        print()
+
+        last_time: Optional[str] = None
+        
+        for day in DAYS:
+            finish_time = input(day + ': ')
+
+            if finish_time == '' and last_time is not None:
+                finish_time = last_time
+
+            last_time = finish_time
+            self.__finish_times.append(time.fromisoformat(finish_time))
 
 
 def create() -> Vehicle:

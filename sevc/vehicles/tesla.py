@@ -25,16 +25,16 @@ class TeslaVehicle(Vehicle):
 
         super().__init__(array, uuid)
 
-        if 'access_token' in array:
-            self.__access_token = array['access_token']
-        else:
-            self.__login()
-
         if 'refresh_token' in array:
             self.__refresh_token = array['refresh_token']
 
         if 'token_expires' in array:
             self.__token_expires = datetime.fromtimestamp(array['token_expires'], UTC)
+
+        if 'access_token' in array:
+            self.__access_token = array['access_token']
+        else:
+            self.__login()
 
         if self.__token_expires is None or self.__token_expires < datetime.now(UTC):
             self.__refresh_access_token()

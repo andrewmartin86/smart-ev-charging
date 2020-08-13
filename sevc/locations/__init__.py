@@ -7,6 +7,10 @@ from typing import List
 from typing import Optional
 
 
+API_ENDPOINT = 'https://dev.virtualearth.net/REST/v1/Locations'
+API_KEY = 'Av73UhSnMiyn0ikU68pvish4BGguc_C5RnatjNg4DQSUhEuv8XqojS6Axojv3LjH'
+
+
 class Location:
     uuid: str = ''
     name: str = ''
@@ -38,23 +42,12 @@ class Location:
         if 'coordinates' in array:
             self.__north, self.__east, self.__south, self.__west = array['coordinates']
         else:
-            coordinates = find_coordinates(input('Please enter an accurate location: '))
-            if coordinates is not None:
-                self.__north, self.__east, self.__south, self.__west = coordinates
+            self.__obtain_coordinates()
 
         if 'tariff' in array:
             self.tariff = array['tariff']
         else:
-            print()
-            tariff_uuids: List[str] = []
-            t: int = 0
-
-            for tariff_uuid in tariffs:
-                tariff_uuids.append(tariff_uuid)
-                t += 1
-                print(str(t) + ': ' + tariffs[tariff_uuid].name)
-
-            self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: ')) - 1]
+            self.__obtain_tariff(tariffs)
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
@@ -70,22 +63,35 @@ class Location:
         return self.__south <= lat <= self.__north\
             and (self.__west <= long <= self.__east) == (self.__east > self.__west)
 
+    def __obtain_coordinates(self) -> None:
+        """Obtain the coordinates for a given location"""
 
-def find_coordinates(search: str) -> Optional[List[float]]:
-    """Fetch coordinates from a search query"""
+        location = input('Please enter an accurate location (eg postcode): ')
 
-    request = requests.get('https://dev.virtualearth.net/REST/v1/Locations', {
-        'query': search,
-        'key': 'Av73UhSnMiyn0ikU68pvish4BGguc_C5RnatjNg4DQSUhEuv8XqojS6Axojv3LjH'
-    })
+        request = requests.get(API_ENDPOINT, {
+            'query': location,
+            'key': API_KEY
+        })
 
-    if request.status_code != 200:
-        return None
+        if request.status_code != 200:
+            return
 
-    parsed = request.json()
+        parsed = request.json()
 
-    for resource_set in parsed['resourceSets']:
-        for resource in resource_set['resources']:
-            return resource['bbox']
+        for resource_set in parsed['resourceSets']:
+            for resource in resource_set['resources']:
+                self.__north, self.__east, self.__south, self.__west = resource['bbox']
+                return
 
-    return None
+    def __obtain_tariff(self, tariffs: Dict[str, Tariff]) -> None:
+        print()
+        tariff_uuids: List[str] = []
+        t: int = 0
+
+        for tariff_uuid in tariffs:
+            tariff_uuids.append(tariff_uuid)
+            t += 1
+            print(str(t) + ': ' + tariffs[tariff_uuid].name)
+
+        self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: ')) - 1]
+

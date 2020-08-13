@@ -11,8 +11,8 @@ from dateutil.tz import UTC
 
 
 class OctopusAgileTariff(Tariff):
-    __api_endpoint: str = ''
-    __api_key: str = ''
+    __api_endpoint: Optional[str] = None
+    __api_key: Optional[str] = None
     __api_next_update: Optional[datetime] = None
 
     def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
@@ -23,22 +23,17 @@ class OctopusAgileTariff(Tariff):
 
         if 'api_endpoint' in array:
             self.__api_endpoint = array['api_endpoint']
-        else:
-            self.__api_endpoint = input("""
-Log into your Octopus account and go to https://octopus.energy/dashboard/developer/
-Under Unit Rates, you should see a web address.
-Please enter that here: """)
 
         if 'api_key' in array:
             self.__api_key = array['api_key']
-        else:
-            self.__api_key = input("""
-Log into your Octopus account and go to https://octopus.energy/dashboard/developer/
-Under Authentication, you should see an API key.
-Please enter that here: """)
+
+        if self.__api_endpoint is None or self.__api_key is None:
+            self.__obtain_api_details()
 
         if 'api_next_update' in array:
             self.__api_next_update = datetime.fromtimestamp(array['api_next_update'], UTC)
+        else:
+            self.__api_next_update = datetime.now(UTC)
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
@@ -82,3 +77,11 @@ Please enter that here: """)
 
         if self.__api_next_update <= now:
             self.__api_next_update += timedelta(days=1)
+
+    def __obtain_api_details(self) -> None:
+        """Obtain the API details"""
+
+        print()
+        print('Please log into your Octopus account then go to https://octopus.energy/dashboard/developer/')
+        self.__api_endpoint = input('From Unit Rates, enter the URL: ')
+        self.__api_key = input('From Authentication, enter the API key: ')
