@@ -162,7 +162,6 @@ def create() -> Tariff:
     """Choose a class to create a new instance"""
 
     print()
-
     classes = []
     i = 0
 

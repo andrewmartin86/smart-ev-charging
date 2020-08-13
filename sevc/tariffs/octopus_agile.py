@@ -15,11 +15,11 @@ class OctopusAgileTariff(Tariff):
     __api_key: str = ''
     __api_next_update: Optional[datetime] = None
 
-    def __init__(self, array: Optional[dict] = None):
+    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
         if array is None:
             array = {}
 
-        super().__init__(array)
+        super().__init__(array, uuid)
 
         if 'api_endpoint' in array:
             self.__api_endpoint = array['api_endpoint']

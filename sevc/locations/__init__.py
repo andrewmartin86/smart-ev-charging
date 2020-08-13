@@ -17,7 +17,8 @@ class Location:
     __south: float = 0
     __west: float = 0
 
-    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None, tariffs: Optional[Dict[str, Tariff]] = None):
+    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None,
+                 tariffs: Optional[Dict[str, Tariff]] = None):
         if array is None:
             array = {}
 
@@ -64,6 +65,11 @@ class Location:
             'tariff': self.tariff,
             'coordinates': [self.__north, self.__east, self.__south, self.__west]
         }
+
+    def position_match(self, lat: float, long: float) -> bool:
+        """Are the given coordinates in this location?"""
+        return self.__south <= lat <= self.__north\
+            and (self.__west <= long <= self.__east) == (self.__east > self.__west)
 
 
 def find_coordinates(search: str) -> Optional[List[float]]:
