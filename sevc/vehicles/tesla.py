@@ -1,4 +1,5 @@
 import requests
+import time
 
 from datetime import datetime
 from datetime import timedelta
@@ -8,7 +9,7 @@ from typing import Optional
 from dateutil.tz import UTC
 
 
-API_URI = 'https://owner-api.teslamotors.com'
+API_URI = 'https://owner-api.teslamotors.com/'
 CLIENT_ID = '81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384'
 CLIENT_SECRET = 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3'
 
@@ -57,43 +58,36 @@ class TeslaVehicle(Vehicle):
             }
         }
 
-    def __api_get(self, endpoint: str, params: Optional[dict] = None):
-        """Send a GET to API and return the response"""
+    def __api_request(self, endpoint: str, params: Optional[dict] = None, method: str = 'GET'):
+        """Send a request to the API and return the response"""
 
         if params is None:
             params = {}
 
-        request = requests.get(API_URI + '/api/1/' + endpoint, params=params, headers={
+        if self.__vehicle_id is not None:
+            endpoint = 'vehicles/' + self.__vehicle_id + '/' + endpoint
+
+        request = requests.request(method, API_URI + 'api/1/' + endpoint, params=params, headers={
             'Authorization': 'Bearer ' + self.__access_token
         })
 
         if request.status_code != 200:
             return None
 
-        return request.json()
+        parsed = request.json()
 
-    def __api_post(self, endpoint: str, params: Optional[dict] = None):
-        """Send a POST to API and return the response"""
+        if 'response' in parsed:
+            return parsed['response']
 
-        if params is None:
-            params = {}
-
-        request = requests.post(API_URI + '/api/1/' + endpoint, params=params, headers={
-            'Authorization': 'Bearer ' + self.__access_token
-        })
-
-        if request.status_code != 200:
-            return None
-
-        return request.json()
+        return None
 
     def __login(self) -> None:
-        """Log into the Tesla API to obtain an access token"""
+        """Log into the API to obtain an access token"""
 
         email = input("""Please enter your email address to log into Tesla: """)
         password = input("""Please enter your Tesla password: """)
 
-        request = requests.post(API_URI + '/oauth/token', {
+        request = requests.post(API_URI + 'oauth/token', {
             'grant_type': 'password',
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET,
@@ -113,15 +107,15 @@ class TeslaVehicle(Vehicle):
     def __obtain_vehicle_id(self) -> None:
         """Obtain the vehicle ID"""
 
-        response = self.__api_get('/vehicles')
+        vehicles = self.__api_request('vehicles')
 
-        if response is None:
+        if vehicles is None:
             return
 
         i: int = 0
         print()
 
-        for vehicle in response['response']:
+        for vehicle in vehicles:
             i += 1
             options = vehicle['option_codes'].split(',')
 
@@ -136,15 +130,15 @@ class TeslaVehicle(Vehicle):
 
             print(str(i) + ': ' + vehicle['display_name'] + ' (' + model + ')')
 
-        self.__vehicle_id = response['response'][int(input('Please enter your vehicle: ')) - 1]['id']
+        self.__vehicle_id = vehicles[int(input('Please enter your vehicle: ')) - 1]['id']
 
     def __refresh_access_token(self) -> None:
-        """Refresh the Tesla API access token"""
+        """Refresh the API access token"""
 
         if self.__refresh_token is None:
             return self.__login()
 
-        request = requests.post(API_URI + '/oauth/token', {
+        request = requests.post(API_URI + 'oauth/token', {
             'grant_type': 'refresh_token',
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET,
@@ -159,3 +153,17 @@ class TeslaVehicle(Vehicle):
         self.__access_token = parsed['access_token']
         self.__refresh_token = parsed['refresh_token']
         self.__token_expires = datetime.now(UTC) + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
+
+    def __wake(self) -> bool:
+        """Wake up the vehicle"""
+
+        for i in range(18):
+            response = self.__api_request('vehicle_data')
+
+            if response is not None:
+                return True
+
+            wake = self.__api_request('wake_up', method='POST')
+            time.sleep(10)
+
+        return False
