@@ -1,9 +1,11 @@
 import requests
+import sevc.vehicles
 import time
 
 from datetime import datetime
 from datetime import timedelta
 from sevc.vehicles import Vehicle
+from typing import List
 from typing import Optional
 
 from dateutil.tz import UTC
@@ -58,7 +60,48 @@ class TeslaVehicle(Vehicle):
             }
         }
 
-    def __api_request(self, endpoint: str, params: Optional[dict] = None, method: str = 'GET'):
+    def _position(self) -> Optional[List[float]]:
+        """Get the vehicle's current position"""
+
+        response = self.__api_request('data_request/drive_state')
+
+        if response is None:
+            return None
+
+        return [response['latitude'], response['longitude']]
+
+    def _start_charging(self) -> bool:
+        """Start the vehicle charging"""
+
+        return self.__api_request('command/charge_start', method='POST', result_key='result')
+
+    def _status(self) -> int:
+        """Get the vehicle's current status"""
+
+        response = self.__api_request('data_request/drive_state')
+
+        if response is None:
+            return sevc.vehicles.UNRESPONSIVE
+
+        if response['shift_state'] is not None:
+            return sevc.vehicles.DRIVING
+
+        response = self.__api_request('data_request/charge_state')
+
+        if response is None:
+            return sevc.vehicles.UNRESPONSIVE
+
+        if response['charging_state'] == 'Disconnected':
+            return sevc.vehicles.UNPLUGGED
+        elif response['charging_state'] == 'Charging':
+            return sevc.vehicles.CHARGING
+        elif response['charging_state'] == 'Complete':
+            return sevc.vehicles.COMPLETE
+        else:
+            return sevc.vehicles.WAITING
+
+    def __api_request(self, endpoint: str, params: Optional[dict] = None, method: str = 'GET',
+                      result_key: str = 'response'):
         """Send a request to the API and return the response"""
 
         if params is None:
@@ -76,8 +119,8 @@ class TeslaVehicle(Vehicle):
 
         parsed = request.json()
 
-        if 'response' in parsed:
-            return parsed['response']
+        if result_key in parsed:
+            return parsed[result_key]
 
         return None
 
@@ -163,7 +206,7 @@ class TeslaVehicle(Vehicle):
             if response is not None:
                 return True
 
-            wake = self.__api_request('wake_up', method='POST')
+            self.__api_request('wake_up', method='POST')
             time.sleep(10)
 
         return False

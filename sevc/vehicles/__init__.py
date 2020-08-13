@@ -90,12 +90,12 @@ class Vehicle:
         """Get the vehicle's current position"""
         pass
 
-    def _start_charging(self) -> None:
+    def _start_charging(self) -> bool:
         """Start the vehicle charging"""
         pass
 
     def _status(self) -> int:
-        """Get the vehicle's status"""
+        """Get the vehicle's current status"""
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
@@ -158,7 +158,11 @@ class Vehicle:
         charge_time = self._charge_time()
 
         if charge_time is None:
-            self._start_charging()
+            if not self._start_charging():
+                self.__next_ping = now + timedelta(minutes=1)
+                self.__status = WAITING
+                return
+
             self.__next_ping = now + timedelta(hours=1)
             self.__status = CHARGING
             return
@@ -167,8 +171,7 @@ class Vehicle:
         start_time = tariff.optimal_charge_time(charge_time, finish_time)
         now = datetime.now(UTC)
 
-        if start_time <= now:
-            self._start_charging()
+        if start_time <= now and self._start_charging():
             self.__next_ping = finish_time + timedelta(minutes=30)
             self.__status = CHARGING
             return
