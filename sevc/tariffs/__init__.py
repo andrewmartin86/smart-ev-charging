@@ -16,21 +16,22 @@ from dateutil.tz import UTC
 
 
 class Tariff:
-    _name: str = ''
+    uuid: str = ''
+    name: str = ''
+
     _rates: List[Dict[str, Union[datetime, float]]] = []
 
     __module: str = ''
     __class: str = ''
-    __uuid: str = ''
 
     def __init__(self, array: Optional[dict] = None):
         if array is None:
             array = {}
 
         if 'uuid' in array:
-            self.__uuid = array['uuid']
+            self.uuid = array['uuid']
         else:
-            self.__uuid = str(uuid.uuid1())
+            self.uuid = str(uuid.uuid1())
 
         if 'module' in array:
             self.__module = array['module']
@@ -43,9 +44,9 @@ class Tariff:
             self.__class = self.__class__.__name__
 
         if 'name' in array:
-            self._name = array['name']
+            self.name = array['name']
         else:
-            self._name = input('Please enter a name for this tariff: ')
+            self.name = input('Please enter a name for this tariff: ')
 
         self._rates = []
         if 'rates' in array:
@@ -73,10 +74,10 @@ class Tariff:
             })
 
         return {
-            'uuid': self.__uuid,
+            'uuid': self.uuid,
             'module': self.__module,
             'class': self.__class,
-            'name': self._name,
+            'name': self.name,
             'rates': rates
         }
 
