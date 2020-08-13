@@ -35,10 +35,10 @@ class Settings:
 
         if 'tariffs' in parsed:
             for uuid in parsed['tariffs']:
-                self.tariffs[uuid] = sevc.tariffs.from_dict(parsed['tariffs'][uuid], uuid)
+                self.tariffs[uuid] = sevc.object_from_dict(parsed['tariffs'][uuid], uuid)
 
         if len(self.tariffs) == 0:
-            tariff = sevc.tariffs.create()
+            tariff = sevc.instantiate_subclass(Tariff)  # sevc.tariffs.create()
             self.tariffs[tariff.uuid] = tariff
 
         if 'locations' in parsed:
@@ -51,10 +51,10 @@ class Settings:
 
         if 'vehicles' in parsed:
             for uuid in parsed['vehicles']:
-                self.vehicles[uuid] = sevc.vehicles.from_dict(parsed['vehicles'][uuid], uuid)
+                self.vehicles[uuid] = sevc.object_from_dict(parsed['vehicles'][uuid], uuid)
 
         if len(self.vehicles) == 0:
-            vehicle = sevc.vehicles.create()
+            vehicle = sevc.instantiate_subclass(Vehicle)  # sevc.vehicles.create()
             self.vehicles[vehicle.uuid] = vehicle
 
     def __del__(self):

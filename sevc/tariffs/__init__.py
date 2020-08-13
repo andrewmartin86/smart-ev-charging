@@ -1,7 +1,3 @@
-import importlib
-import importlib.util
-import inspect
-import pkgutil
 import sevc
 import uuid as py_uuid
 
@@ -46,7 +42,7 @@ class Tariff:
         if 'name' in array:
             self.name = array['name']
         else:
-            self.name = input('Please enter a name for this tariff: ')
+            self.name = sevc.name_object(self.__class__)
 
         self._rates = []
         if 'rates' in array:
@@ -156,36 +152,3 @@ class Tariff:
             rates.append(rate)
 
         self._rates = rates
-
-
-def create() -> Tariff:
-    """Choose a class to create a new instance"""
-
-    print()
-    classes = []
-    i = 0
-
-    for importer, modname, ispkg in pkgutil.iter_modules(__path__):
-        spec = importer.find_spec(modname)
-        module = spec.loader.load_module(modname)
-        members = inspect.getmembers(module, lambda member: sevc.is_subclass_of(member, Tariff))
-
-        for name, obj in members:
-            i += 1
-            print(str(i) + ': ' + name)
-
-            classes.append({
-                'module': module,
-                'class': name
-            })
-
-    class_def = classes[int(input('Please choose a tariff type: ')) - 1]
-    cls = getattr(class_def['module'], class_def['class'])
-    return cls()
-
-
-def from_dict(array: dict, uuid: Optional[str] = None) -> Tariff:
-    """Create an object from a dictionary"""
-
-    cls = getattr(importlib.import_module(array['module']), array['class'])
-    return cls(array, uuid)

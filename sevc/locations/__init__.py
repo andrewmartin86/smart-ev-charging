@@ -1,4 +1,5 @@
 import requests
+import sevc
 import uuid as py_uuid
 
 from sevc.tariffs import Tariff
@@ -37,7 +38,7 @@ class Location:
         if 'name' in array:
             self.name = array['name']
         else:
-            self.name = input('Please enter a name for this location: ')
+            self.name = sevc.name_object(self.__class__)
 
         if 'coordinates' in array:
             self.__north, self.__east, self.__south, self.__west = array['coordinates']
