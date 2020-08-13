@@ -86,6 +86,8 @@ class Vehicle:
 
         if 'next_ping' in array:
             self.__next_ping = datetime.fromtimestamp(array['next_ping'], UTC)
+        else:
+            self.__next_ping = datetime.now(UTC)
 
         if 'status' in array:
             self.__status = int(array['status'])

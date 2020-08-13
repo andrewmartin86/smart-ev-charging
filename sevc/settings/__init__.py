@@ -30,22 +30,25 @@ class Settings:
 
         parsed = json.loads(raw)
 
-        for uuid in parsed['tariffs']:
-            self.tariffs[uuid] = sevc.tariffs.from_dict(parsed['tariffs'][uuid], uuid)
+        if 'tariffs' in parsed:
+            for uuid in parsed['tariffs']:
+                self.tariffs[uuid] = sevc.tariffs.from_dict(parsed['tariffs'][uuid], uuid)
 
         if len(self.tariffs) == 0:
             tariff = sevc.tariffs.create()
             self.tariffs[tariff.uuid] = tariff
 
-        for uuid in parsed['locations']:
-            self.locations[uuid] = Location(parsed['locations'][uuid], uuid)
+        if 'locations' in parsed:
+            for uuid in parsed['locations']:
+                self.locations[uuid] = Location(parsed['locations'][uuid], uuid)
 
         if len(self.locations) == 0:
             location = Location(tariffs=self.tariffs)
             self.locations[location.uuid] = location
 
-        for uuid in parsed['vehicles']:
-            self.vehicles[uuid] = sevc.vehicles.from_dict(parsed['vehicles'][uuid], uuid)
+        if 'vehicles' in parsed:
+            for uuid in parsed['vehicles']:
+                self.vehicles[uuid] = sevc.vehicles.from_dict(parsed['vehicles'][uuid], uuid)
 
         if len(self.vehicles) == 0:
             vehicle = sevc.vehicles.create()
