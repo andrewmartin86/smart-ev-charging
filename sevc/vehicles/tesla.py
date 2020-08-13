@@ -128,14 +128,18 @@ class TeslaVehicle(Vehicle):
     def __login(self) -> None:
         """Log into the API to obtain an access token"""
 
-        # Note that we don't store the email and password, not even as a variable
+        print()
+        print('Please enter your credentials to log into Tesla.')
+        print('These will be used purely to generate an API access token, and will not be stored.')
+        
+        # Storing the credentials would be bad, wouldn't it?
 
         request = requests.post(API_URI + 'oauth/token', {
             'grant_type': 'password',
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET,
-            'email': input("""Please enter your email address to log into Tesla: """),
-            'password': input("""Please enter your Tesla password: """)
+            'email': input('Email: '),
+            'password': input('Password: ')
         })
 
         if request.status_code != 200:
