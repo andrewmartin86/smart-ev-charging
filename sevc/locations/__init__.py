@@ -1,7 +1,8 @@
 import requests
-import uuid
+import uuid as py_uuid
 
 from sevc.tariffs import Tariff
+from typing import Dict
 from typing import List
 from typing import Optional
 
@@ -16,17 +17,17 @@ class Location:
     __south: float = 0
     __west: float = 0
 
-    def __init__(self, array: Optional[dict] = None, tariffs: Optional[List[Tariff]] = None):
+    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None, tariffs: Optional[Dict[str, Tariff]] = None):
         if array is None:
             array = {}
 
         if tariffs is None:
             tariffs = []
 
-        if 'uuid' in array:
-            self.uuid = array['uuid']
+        if uuid is None:
+            self.uuid = str(py_uuid.uuid1())
         else:
-            self.uuid = str(uuid.uuid1())
+            self.uuid = uuid
 
         if 'name' in array:
             self.name = array['name']
@@ -44,20 +45,21 @@ class Location:
             self.tariff = array['tariff']
         else:
             print()
+            tariff_uuids: List[str] = []
             t: int = 0
 
-            for tariff in tariffs:
+            for tariff_uuid in tariffs:
+                tariff_uuids.append(tariff_uuid)
                 t += 1
-                print(str(t) + ': ' + tariff.name)
+                print(str(t) + ': ' + tariffs[tariff_uuid].name)
 
-            tariff_id = input("""
-Please enter the tariff used at this location: """)
-
-            self.tariff = tariffs[int(tariff_id) - 1].uuid
+            print()
+            self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: ')) - 1]
 
     def dict(self) -> dict:
+        """Output the object as a dictionary"""
+
         return {
-            'uuid': self.uuid,
             'name': self.name,
             'tariff': self.tariff,
             'coordinates': [self.__north, self.__east, self.__south, self.__west]
@@ -65,6 +67,8 @@ Please enter the tariff used at this location: """)
 
 
 def find_coordinates(search: str) -> Optional[List[float]]:
+    """Fetch coordinates from a search query"""
+
     request = requests.get('https://dev.virtualearth.net/REST/v1/Locations', {
         'query': search,
         'key': 'Av73UhSnMiyn0ikU68pvish4BGguc_C5RnatjNg4DQSUhEuv8XqojS6Axojv3LjH'

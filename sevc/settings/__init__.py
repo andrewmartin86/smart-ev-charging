@@ -3,15 +3,15 @@ import sevc.tariffs
 
 from sevc.locations import Location
 from sevc.tariffs import Tariff
-from typing import List
+from typing import Dict
 
 
 class Settings:
     __filename: str = ''
 
-    locations: List[Location] = []
-    tariffs: List[Tariff] = []
-    vehicles: list = []
+    locations: Dict[str, Location] = {}
+    tariffs: Dict[str, Tariff] = {}
+    vehicles: dict = {}
 
     def __init__(self, filename: str):
         self.__filename = filename
@@ -22,50 +22,51 @@ class Settings:
             file.close()
         except IOError:
             file = open(self.__filename, 'w')
-            raw = '{"locations":[],"tariffs":[],"vehicles":[]}'
+            raw = '{"locations":{},"tariffs":{},"vehicles":{}}'
             file.write(raw)
             file.close()
 
         parsed = json.loads(raw)
 
-        for tariff in parsed['tariffs']:
-            self.tariffs.append(sevc.tariffs.from_dict(tariff))
+        for uuid in parsed['tariffs']:
+            self.tariffs[uuid] = sevc.tariffs.from_dict(parsed['tariffs'][uuid], uuid)
 
         if len(self.tariffs) == 0:
-            self.tariffs.append(sevc.tariffs.create())
+            tariff = sevc.tariffs.create()
+            self.tariffs[tariff.uuid] = tariff
 
-        for location in parsed['locations']:
-            self.locations.append(Location(location))
+        for uuid in parsed['locations']:
+            self.locations[uuid] = Location(parsed['locations'][uuid], uuid)
 
         if len(self.locations) == 0:
-            self.locations.append(Location(None, self.tariffs))
+            location = Location(tariffs=self.tariffs)
+            self.locations[location.uuid] = location
 
-        for vehicle in parsed['vehicles']:
-            self.vehicles.append(vehicle)
+        for uuid in parsed['vehicles']:
+            self.vehicles[uuid] = parsed['vehicles'][uuid]
 
     def __del__(self):
         self.save()
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
-        
-        locations = []
-        for location in self.locations:
-            locations.append(location.dict())
 
-        tariffs = []
-        for tariff in self.tariffs:
-            tariffs.append(tariff.dict())
-
-        vehicles = []
-        for vehicle in self.vehicles:
-            vehicles.append(vehicle)
-
-        return {
-            'locations': locations,
-            'tariffs': tariffs,
-            'vehicles': vehicles
+        rtn = {
+            'locations': {},
+            'tariffs': {},
+            'vehicles': {}
         }
+        
+        for uuid in self.locations:
+            rtn['locations'][uuid] = self.locations[uuid].dict()
+
+        for uuid in self.tariffs:
+            rtn['tariffs'][uuid] = self.tariffs[uuid].dict()
+
+        for uuid in self.vehicles:
+            rtn['vehicles'][uuid] = self.vehicles[uuid]
+
+        return rtn
 
     def save(self) -> None:
         """Save the settings to the file"""

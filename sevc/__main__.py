@@ -10,5 +10,5 @@ if not os.path.isdir(base_dir + '/var'):
 
 settings = Settings(base_dir + '/var/sevc.json')
 
-for tariff in settings.tariffs:
-    tariff.update_rates()
+for uuid in settings.tariffs:
+    settings.tariffs[uuid].update_rates()

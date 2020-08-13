@@ -3,7 +3,7 @@ import importlib.util
 import inspect
 import pkgutil
 import sevc
-import uuid
+import uuid as py_uuid
 
 from datetime import datetime
 from datetime import timedelta
@@ -24,14 +24,14 @@ class Tariff:
     __module: str = ''
     __class: str = ''
 
-    def __init__(self, array: Optional[dict] = None):
+    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
         if array is None:
             array = {}
 
-        if 'uuid' in array:
-            self.uuid = array['uuid']
+        if uuid is None:
+            self.uuid = str(py_uuid.uuid1())
         else:
-            self.uuid = str(uuid.uuid1())
+            self.uuid = uuid
 
         if 'module' in array:
             self.__module = array['module']
@@ -64,22 +64,21 @@ class Tariff:
     def dict(self) -> dict:
         """Output the object as a dictionary"""
 
-        rates = []
+        rtn = {
+            'module': self.__module,
+            'class': self.__class,
+            'name': self.name,
+            'rates': []
+        }
 
         for rate in self._rates:
-            rates.append({
+            rtn['rates'].append({
                 'start': rate['start'].timestamp(),
                 'end': rate['end'].timestamp(),
                 'rate': float(rate['rate'])
             })
 
-        return {
-            'uuid': self.uuid,
-            'module': self.__module,
-            'class': self.__class,
-            'name': self.name,
-            'rates': rates
-        }
+        return rtn
 
     def optimal_charge_time(self, length: timedelta, finish: datetime) -> datetime:
         """Calculate the optimal start time for a charge"""
@@ -181,18 +180,14 @@ def create() -> Tariff:
                 'class': name
             })
 
-    class_id = input("""
-Please choose a tariff type: """)
-
-    class_def = classes[int(class_id) - 1]
-    module = class_def['module']
-    cls = getattr(module, class_def['class'])
+    print()
+    class_def = classes[int(input('Please choose a tariff type: ')) - 1]
+    cls = getattr(class_def['module'], class_def['class'])
     return cls()
 
 
-def from_dict(array: dict) -> Tariff:
+def from_dict(array: dict, uuid: Optional[str] = None) -> Tariff:
     """Create an object from a dictionary"""
 
-    module = importlib.import_module(array['module'])
-    cls = getattr(module, array['class'])
-    return cls(array)
+    cls = getattr(importlib.import_module(array['module']), array['class'])
+    return cls(array, uuid)
