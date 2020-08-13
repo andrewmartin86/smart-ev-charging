@@ -1,6 +1,7 @@
 import json
 import sevc.tariffs
 
+from sevc.locations import Location
 from sevc.tariffs import Tariff
 from typing import List
 
@@ -8,7 +9,7 @@ from typing import List
 class Settings:
     __filename: str = ''
 
-    locations: list = []
+    locations: List[Location] = []
     tariffs: List[Tariff] = []
     vehicles: list = []
 
@@ -27,14 +28,17 @@ class Settings:
 
         parsed = json.loads(raw)
 
-        for location in parsed['locations']:
-            self.locations.append(location)
-
         for tariff in parsed['tariffs']:
             self.tariffs.append(sevc.tariffs.from_dict(tariff))
 
         if len(self.tariffs) == 0:
             self.tariffs.append(sevc.tariffs.create())
+
+        for location in parsed['locations']:
+            self.locations.append(Location(location))
+
+        if len(self.locations) == 0:
+            self.locations.append(Location(None, self.tariffs))
 
         for vehicle in parsed['vehicles']:
             self.vehicles.append(vehicle)
@@ -47,7 +51,7 @@ class Settings:
         
         locations = []
         for location in self.locations:
-            locations.append(location)
+            locations.append(location.dict())
 
         tariffs = []
         for tariff in self.tariffs:

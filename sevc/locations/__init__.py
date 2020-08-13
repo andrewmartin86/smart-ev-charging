@@ -24,9 +24,9 @@ class Location:
             tariffs = []
 
         if 'uuid' in array:
-            self.__uuid = array['uuid']
+            self.uuid = array['uuid']
         else:
-            self.__uuid = str(uuid.uuid1())
+            self.uuid = str(uuid.uuid1())
 
         if 'name' in array:
             self.name = array['name']
@@ -54,6 +54,14 @@ class Location:
 Please enter the tariff used at this location: """)
 
             self.tariff = tariffs[int(tariff_id) - 1].uuid
+
+    def dict(self) -> dict:
+        return {
+            'uuid': self.uuid,
+            'name': self.name,
+            'tariff': self.tariff,
+            'coordinates': [self.__north, self.__east, self.__south, self.__west]
+        }
 
 
 def find_coordinates(search: str) -> Optional[List[float]]:
