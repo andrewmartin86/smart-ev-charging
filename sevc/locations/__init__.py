@@ -18,6 +18,7 @@ class Location:
     uuid: str = ''
     name: str = ''
     tariff: str = ''
+    power: Optional[float] = None
 
     __north: float = 0
     __east: float = 0
@@ -52,13 +53,19 @@ class Location:
         else:
             self.__obtain_tariff(tariffs)
 
+        if 'power' in array:
+            self.power = float(array['power'])
+        else:
+            self.power = float(input('Please enter the power (in kW) of the charger at this location: '))
+
     def dict(self) -> dict:
         """Output the object as a dictionary"""
 
         return {
             'name': self.name,
             'tariff': self.tariff,
-            'coordinates': [self.__north, self.__east, self.__south, self.__west]
+            'coordinates': [self.__north, self.__east, self.__south, self.__west],
+            'power': self.power
         }
 
     def position_match(self, lat: float, long: float) -> bool:
@@ -69,7 +76,7 @@ class Location:
     def __obtain_coordinates(self) -> None:
         """Obtain the coordinates for a given location"""
 
-        location = input('Please enter an accurate location (eg postcode): ')
+        location = input('Please enter an accurate location (eg a post code): ')
 
         request = requests.get(API_ENDPOINT, {
             'query': location,
