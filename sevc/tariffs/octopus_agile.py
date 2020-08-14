@@ -33,7 +33,7 @@ class OctopusAgileTariff(Tariff):
             self.__obtain_api_details()
 
         if 'api_next_update' in array:
-            self.__api_next_update = datetime.fromtimestamp(array['api_next_update'], UTC)
+            self.__api_next_update = datetime.fromisoformat(array['api_next_update'])
         else:
             self.__api_next_update = datetime.now(UTC)
 
@@ -45,7 +45,7 @@ class OctopusAgileTariff(Tariff):
             **{
                 'api_endpoint': self.__api_endpoint,
                 'api_key': self.__api_key,
-                'api_next_update': self.__api_next_update.timestamp()
+                'api_next_update': self.__api_next_update.astimezone().isoformat()
             }
         }
 

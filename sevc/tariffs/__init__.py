@@ -50,8 +50,8 @@ class Tariff:
         if 'rates' in array:
             for rate in array['rates']:
                 self._rates.append({
-                    'start': datetime.fromtimestamp(rate['start'], UTC),
-                    'end': datetime.fromtimestamp(rate['end'], UTC),
+                    'start': datetime.fromisoformat(rate['start']),
+                    'end': datetime.fromisoformat(rate['end']),
                     'rate': float(rate['rate'])
                 })
 
@@ -71,8 +71,8 @@ class Tariff:
 
         for rate in self._rates:
             rtn['rates'].append({
-                'start': int(rate['start'].timestamp()),
-                'end': int(rate['end'].timestamp()),
+                'start': rate['start'].astimezone().isoformat(),
+                'end': rate['end'].astimezone().isoformat(),
                 'rate': float(rate['rate'])
             })
 

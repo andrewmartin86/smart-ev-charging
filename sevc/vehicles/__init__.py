@@ -83,7 +83,7 @@ class Vehicle:
             self.__obtain_finish_times()
 
         if 'next_ping' in array:
-            self.__next_ping = datetime.fromtimestamp(array['next_ping'], UTC)
+            self.__next_ping = datetime.fromisoformat(array['next_ping'])
         else:
             self.__next_ping = datetime.now(UTC)
 
@@ -114,7 +114,7 @@ class Vehicle:
             'class': self.__class,
             'name': self.name,
             'battery': self._battery,
-            'next_ping': self.__next_ping.timestamp(),
+            'next_ping': self.__next_ping.astimezone().isoformat(),
             'status': int(self.__status),
             'finish_times': []
         }
@@ -202,7 +202,7 @@ class Vehicle:
         if charge is None:
             return None
 
-        return timedelta(seconds=(charge * 3600 / power) + 600)  # add a 10 minute buffer
+        return timedelta(seconds=round(charge * 3600 / power) + 600)  # add a 10 minute buffer
 
     def __next_finish(self, date: Optional[datetime] = None) -> datetime:
         """Calculate the next charge finish time"""
@@ -213,9 +213,9 @@ class Vehicle:
             date = now
 
         finish = self.__finish_times[date.weekday()]
-        rtn = date.replace(hour=finish.hour, minute=finish.minute, second=finish.second, microsecond=finish.microsecond)
+        rtn = date.replace(hour=finish.hour, minute=finish.minute, second=finish.second, microsecond=0)
 
-        if rtn < now:
+        if rtn <= now:
             # Today's finish time has already passed: return tomorrow's
             return self.__next_finish(date + timedelta(days=1))
 
