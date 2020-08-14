@@ -32,6 +32,8 @@ STATUS_WAIT = {
 
 
 class Vehicle:
+    """An abstract for an electric vehicle"""
+
     uuid: str = ''
     name: str = ''
 

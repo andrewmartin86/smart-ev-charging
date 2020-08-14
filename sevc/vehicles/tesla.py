@@ -17,6 +17,8 @@ CLIENT_SECRET = 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa
 
 
 class TeslaVehicle(Vehicle):
+    """Tesla Model S/3/X/Y"""
+
     __access_token: Optional[str] = None
     __refresh_token: Optional[str] = None
     __token_expires: Optional[datetime] = None

@@ -12,6 +12,8 @@ from dateutil.tz import UTC
 
 
 class Tariff:
+    """An abstract for an electricity tariff"""
+
     uuid: str = ''
     name: str = ''
 

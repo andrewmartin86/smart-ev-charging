@@ -11,6 +11,8 @@ from dateutil.tz import UTC
 
 
 class OctopusAgileTariff(Tariff):
+    """Octopus Energy's Agile tariff, which rates per half-hour, updated daily"""
+
     __api_endpoint: Optional[str] = None
     __api_key: Optional[str] = None
     __api_next_update: Optional[datetime] = None

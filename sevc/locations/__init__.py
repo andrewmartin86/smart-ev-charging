@@ -13,6 +13,8 @@ API_KEY = 'Av73UhSnMiyn0ikU68pvish4BGguc_C5RnatjNg4DQSUhEuv8XqojS6Axojv3LjH'
 
 
 class Location:
+    """A geo-location, where a vehicle can charge"""
+
     uuid: str = ''
     name: str = ''
     tariff: str = ''

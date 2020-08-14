@@ -9,6 +9,8 @@ from typing import Dict
 
 
 class Settings:
+    """Stores all locations, tariffs and vehicles"""
+
     __filename: str = ''
 
     locations: Dict[str, Location] = {}
