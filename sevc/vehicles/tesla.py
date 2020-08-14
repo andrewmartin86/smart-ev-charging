@@ -10,7 +10,6 @@ from typing import Optional
 
 from dateutil.tz import UTC
 
-
 API_URI = 'https://owner-api.teslamotors.com/'
 CLIENT_ID = '81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384'
 CLIENT_SECRET = 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3'
@@ -54,7 +53,10 @@ class TeslaVehicle(Vehicle):
             self.__refresh_token = array['refresh_token']
 
         if 'token_expires' in array:
-            self.__token_expires = datetime.fromtimestamp(array['token_expires'], UTC)
+            if not isinstance(array['token_expires'], str):
+                self.__token_expires = datetime.fromtimestamp(array['token_expires'], UTC)
+            else:
+                self.__token_expires = datetime.fromisoformat(array['token_expires'])
 
         if 'access_token' in array:
             self.__access_token = array['access_token']
@@ -79,7 +81,7 @@ class TeslaVehicle(Vehicle):
             **{
                 'access_token': self.__access_token,
                 'refresh_token': self.__refresh_token,
-                'token_expires': self.__token_expires.timestamp(),
+                'token_expires': self.__token_expires.astimezone().isoformat(),
                 'vehicle_id': self.__vehicle_id
             }
         }
@@ -168,7 +170,7 @@ class TeslaVehicle(Vehicle):
         print()
         print('Please enter your credentials to log into Tesla.')
         print('These will be used purely to generate an API access token, and will not be stored.')
-        
+
         # Storing the credentials would be bad, wouldn't it?
 
         request = requests.post(API_URI + 'oauth/token', {
@@ -188,7 +190,8 @@ class TeslaVehicle(Vehicle):
         self.__refresh_token = parsed['refresh_token']
 
         # Use the day before the expiry date to make sure the token doesn't expire
-        self.__token_expires = datetime.now(UTC) + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
+        self.__token_expires = datetime.now(UTC).replace(microsecond=0) \
+            + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
 
     def __obtain_vehicle_id(self) -> None:
         """Obtain the vehicle ID"""
@@ -249,7 +252,8 @@ class TeslaVehicle(Vehicle):
         self.__refresh_token = parsed['refresh_token']
 
         # Use the day before the expiry date to make sure the token doesn't expire
-        self.__token_expires = datetime.now(UTC) + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
+        self.__token_expires = datetime.now(UTC).replace(microsecond=0)\
+            + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
 
     def __wake(self) -> bool:
         """Wake up the vehicle"""
