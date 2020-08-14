@@ -93,6 +93,7 @@ class Vehicle:
 
     def _status(self) -> int:
         """Get the vehicle's current status"""
+        pass
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
