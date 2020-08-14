@@ -21,7 +21,7 @@ class Settings:
 
     def __init__(self, filename: str):
         self.__filename = filename
-        
+
         parsed: dict = {}
 
         try:
@@ -80,7 +80,7 @@ class Settings:
 
         return rtn
 
-    def save(self):
+    def save(self) -> None:
         """Save the settings to the file"""
 
         file = open(self.__filename, 'w')
