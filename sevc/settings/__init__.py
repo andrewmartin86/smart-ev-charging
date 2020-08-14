@@ -79,7 +79,7 @@ class Settings:
 
         return rtn
 
-    def save(self) -> None:
+    def save(self):
         """Save the settings to the file"""
 
         file = open(self.__filename, 'w')
