@@ -21,16 +21,17 @@ class Settings:
 
     def __init__(self, filename: str):
         self.__filename = filename
+        
+        parsed: dict = {}
 
         try:
             file = open(self.__filename, 'r')
             parsed = json.load(file)
             file.close()
-        except Union[IOError, JSONDecodeError]:
-            file = open(self.__filename, 'w')
-            parsed = {}
-            json.dump(parsed, file)
-            file.close()
+        except IOError:
+            self.save()
+        except JSONDecodeError:
+            self.save()
 
         if 'tariffs' in parsed:
             for uuid in parsed['tariffs']:
