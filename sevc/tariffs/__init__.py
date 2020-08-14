@@ -49,14 +49,6 @@ class Tariff:
         self._rates = []
         if 'rates' in array:
             for rate in array['rates']:
-                if not isinstance(rate['start'], str):
-                    self._rates.append({
-                        'start': datetime.fromtimestamp(rate['start'], UTC),
-                        'end': datetime.fromtimestamp(rate['end'], UTC),
-                        'rate': float(rate['rate'])
-                    })
-                    continue
-
                 self._rates.append({
                     'start': datetime.fromisoformat(rate['start']),
                     'end': datetime.fromisoformat(rate['end']),

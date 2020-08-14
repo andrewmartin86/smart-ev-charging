@@ -33,10 +33,7 @@ class OctopusAgileTariff(Tariff):
             self.__obtain_api_details()
 
         if 'api_next_update' in array:
-            if not isinstance(array['api_next_update'], str):
-                self.__api_next_update = datetime.fromtimestamp(array['api_next_update'], UTC)
-            else:
-                self.__api_next_update = datetime.fromisoformat(array['api_next_update'])
+            self.__api_next_update = datetime.fromisoformat(array['api_next_update'])
         else:
             self.__api_next_update = datetime.now(UTC)
 

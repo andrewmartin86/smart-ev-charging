@@ -83,10 +83,7 @@ class Vehicle:
             self.__obtain_finish_times()
 
         if 'next_ping' in array:
-            if not isinstance(array['next_ping'], str):
-                self.__next_ping = datetime.fromtimestamp(array['next_ping'], UTC)
-            else:
-                self.__next_ping = datetime.fromisoformat(array['next_ping'])
+            self.__next_ping = datetime.fromisoformat(array['next_ping'])
         else:
             self.__next_ping = datetime.now(UTC)
 

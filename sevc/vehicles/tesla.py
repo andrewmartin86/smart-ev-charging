@@ -53,10 +53,7 @@ class TeslaVehicle(Vehicle):
             self.__refresh_token = array['refresh_token']
 
         if 'token_expires' in array:
-            if not isinstance(array['token_expires'], str):
-                self.__token_expires = datetime.fromtimestamp(array['token_expires'], UTC)
-            else:
-                self.__token_expires = datetime.fromisoformat(array['token_expires'])
+            self.__token_expires = datetime.fromisoformat(array['token_expires'])
 
         if 'access_token' in array:
             self.__access_token = array['access_token']
