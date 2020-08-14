@@ -2,10 +2,12 @@ import json
 import sevc.tariffs
 import sevc.vehicles
 
+from json import JSONDecodeError
 from sevc.locations import Location
 from sevc.tariffs import Tariff
 from sevc.vehicles import Vehicle
 from typing import Dict
+from typing import Union
 
 
 class Settings:
@@ -22,18 +24,13 @@ class Settings:
 
         try:
             file = open(self.__filename, 'r')
-            raw = file.read()
+            parsed = json.load(file)
             file.close()
-        except IOError:
+        except Union[IOError, JSONDecodeError]:
             file = open(self.__filename, 'w')
-            raw = '{"locations":{},"tariffs":{},"vehicles":{}}'
-            file.write(raw)
-            file.close()
-
-        if raw == '':
             parsed = {}
-        else:
-            parsed = json.loads(raw)
+            json.dump(parsed, file)
+            file.close()
 
         if 'tariffs' in parsed:
             for uuid in parsed['tariffs']:
@@ -86,5 +83,5 @@ class Settings:
         """Save the settings to the file"""
 
         file = open(self.__filename, 'w')
-        file.write(json.dumps(self.dict(), separators=(',', ':')))
+        json.dump(self.dict(), file, separators=(',', ':'))
         file.close()
