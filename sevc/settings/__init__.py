@@ -7,7 +7,6 @@ from sevc.locations import Location
 from sevc.tariffs import Tariff
 from sevc.vehicles import Vehicle
 from typing import Dict
-from typing import Union
 
 
 class Settings:

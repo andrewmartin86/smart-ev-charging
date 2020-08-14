@@ -15,6 +15,28 @@ API_URI = 'https://owner-api.teslamotors.com/'
 CLIENT_ID = '81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384'
 CLIENT_SECRET = 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3'
 
+MODEL_CODES = {
+    'MDL3': 'Model 3',
+    'MDLX': 'Model X',
+    'MDLY': 'Model Y',
+}
+
+BATTERY_CODES = {
+    'BR03': 60,
+    'BR05': 75,
+    'BT37': 75,
+    'BT40': 40,
+    'BT60': 60,
+    'BT70': 70,
+    'BT85': 85,
+    'BTX4': 90,
+    'BTX5': 75,
+    'BTX6': 100,
+    'BTX7': 75,
+    'BTX8': 85,
+    'PBT8': 85
+}
+
 
 class TeslaVehicle(Vehicle):
     """Tesla Model S/3/X/Y"""
@@ -27,8 +49,6 @@ class TeslaVehicle(Vehicle):
     def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
         if array is None:
             array = {}
-
-        super().__init__(array, uuid)
 
         if 'refresh_token' in array:
             self.__refresh_token = array['refresh_token']
@@ -48,6 +68,8 @@ class TeslaVehicle(Vehicle):
             self.__vehicle_id = array['vehicle_id']
         else:
             self.__obtain_vehicle_id()
+
+        super().__init__(array, uuid)
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
@@ -170,21 +192,26 @@ class TeslaVehicle(Vehicle):
             i += 1
 
             # The model ID is buried amongst the option codes
-            options = vehicle['option_codes'].split(',')
+            vehicle['options'] = vehicle['option_codes'].split(',')
+            vehicle['model'] = match_option(vehicle['options'], MODEL_CODES, 'Model S')
 
-            if 'MDLX' in options:
-                model = 'Model X'
-            elif 'MDL3' in options:
-                model = 'Model 3'
-            elif 'MDLY' in options:
-                model = 'Model Y'
+            if vehicle['display_name'] == '':
+                print(str(i) + ': ' + vehicle['model'])
             else:
-                # Model S has many possible IDs
-                model = 'Model S'
+                print(str(i) + ': ' + vehicle['display_name'] + ' (' + vehicle['model'] + ')')
 
-            print(str(i) + ': ' + vehicle['display_name'] + ' (' + model + ')')
+        vehicle = vehicles[int(input('Please choose your vehicle: ')) - 1]
+        self.__vehicle_id = vehicle['id']
 
-        self.__vehicle_id = vehicles[int(input('Please enter your vehicle: ')) - 1]['id']
+        if vehicle['display_name'] == '':
+            self._default_name = vehicle['model']
+        else:
+            self._default_name = vehicle['display_name']
+
+        self._default_battery = float(match_option(vehicle['options'], BATTERY_CODES, 0))
+
+        if self._default_battery == 0:
+            self._default_battery = None
 
     def __refresh_access_token(self) -> None:
         """Refresh the API access token"""
@@ -224,3 +251,13 @@ class TeslaVehicle(Vehicle):
             time.sleep(10)
 
         return self.__api_request('vehicle_data') is not None  # check one last time
+
+
+def match_option(options: List[str], match: dict, default=None):
+    """Match option codes"""
+
+    for code in match:
+        if code in options:
+            return match[code]
+
+    return default

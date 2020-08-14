@@ -37,6 +37,10 @@ class Vehicle:
     uuid: str = ''
     name: str = ''
 
+    _battery: Optional[float] = None
+    _default_name: Optional[str] = None
+    _default_battery: Optional[float] = None
+
     __module: str = ''
     __class: str = ''
     __next_ping: Optional[datetime] = None
@@ -65,7 +69,12 @@ class Vehicle:
         if 'name' in array:
             self.name = array['name']
         else:
-            self.name = sevc.name_object(self.__class__)
+            self.name = sevc.name_object(self.__class__, self._default_name)
+
+        if 'battery' in array:
+            self._battery = float(array['battery'])
+        else:
+            self.__obtain_battery_size()
 
         if 'finish_times' in array:
             for finish_time in array['finish_times']:
@@ -104,6 +113,7 @@ class Vehicle:
             'module': self.__module,
             'class': self.__class,
             'name': self.name,
+            'battery': self._battery,
             'next_ping': self.__next_ping.timestamp(),
             'status': int(self.__status),
             'finish_times': []
@@ -203,7 +213,25 @@ class Vehicle:
 
         return rtn.astimezone(UTC)
 
+    def __obtain_battery_size(self) -> None:
+        """Get the battery size"""
+
+        prompt = 'Please enter the vehicle\'s battery size, in kWh'
+
+        if self._default_battery is not None:
+            prompt += ' (default = ' + str(self._default_battery) + ')'
+
+        battery = input(prompt + ': ')
+
+        if battery == '' and self._default_battery is not None:
+            self._battery = self._default_battery
+            return
+
+        self._battery = float(battery)
+
     def __obtain_finish_times(self) -> None:
+        """Get finish times per day of week"""
+
         print()
         print('Please enter finish times for each day\'s charge (e.g. 07:00 or 23:00):')
 

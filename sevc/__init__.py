@@ -49,7 +49,7 @@ def is_subclass_of(cls, parent: type) -> bool:
     return inspect.isclass(cls) and issubclass(cls, parent) and cls != parent
 
 
-def name_object(cls: type) -> str:
+def name_object(cls: type, default_name: Optional[str] = None) -> str:
     """Get a name for an object"""
 
     if cls.__base__ == object:
@@ -57,7 +57,8 @@ def name_object(cls: type) -> str:
     else:
         parent_name = cls.__base__.__name__.lower()
 
-    default_name = friendly_class_name(cls)
+    if default_name is None:
+        default_name = friendly_class_name(cls)
 
     print()
     name = input('Please enter a name for this ' + parent_name + ' (default = ' + default_name + '): ')
