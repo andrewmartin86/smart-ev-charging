@@ -84,6 +84,19 @@ class TeslaVehicle(Vehicle):
             }
         }
 
+    def _charge_requirement(self) -> Optional[float]:
+        """Calculate how much charge is required"""
+
+        if self._battery is None:
+            return None
+
+        response = self.__api_request('data_request/charge_state')
+
+        if response is None:
+            return None
+
+        return (response['charge_limit_soc'] - response['battery_level']) * self._battery / 100
+
     def _position(self) -> Optional[List[float]]:
         """Get the vehicle's current position"""
 

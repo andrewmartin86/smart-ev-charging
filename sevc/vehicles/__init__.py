@@ -90,8 +90,8 @@ class Vehicle:
         if 'status' in array:
             self.__status = int(array['status'])
 
-    def _charge_time(self) -> Optional[timedelta]:
-        """Calculate how long to charge the vehicle"""
+    def _charge_requirement(self) -> Optional[float]:
+        """Calculate how much charge is required"""
         pass
 
     def _position(self) -> Optional[List[float]]:
@@ -166,7 +166,7 @@ class Vehicle:
             return
 
         tariff = tariffs[location.tariff]
-        charge_time = self._charge_time()
+        charge_time = self.__charge_time(location.power)
 
         if charge_time is None:
             if not self._start_charging():
@@ -195,6 +195,16 @@ class Vehicle:
             self.__next_ping = finish_time - timedelta(minutes=10)
 
         self.__status = WAITING
+
+    def __charge_time(self, power: float) -> Optional[timedelta]:
+        """Calculate how much time is needed to charge"""
+
+        charge = self._charge_requirement()
+
+        if charge is None:
+            return None
+
+        return timedelta(seconds=charge * 3600 / power)
 
     def __next_finish(self, date: Optional[datetime] = None) -> datetime:
         """Calculate the next charge finish time"""
