@@ -12,3 +12,6 @@ settings = Settings(base_dir + '/var/sevc.json')
 
 for uuid in settings.tariffs:
     settings.tariffs[uuid].update_rates()
+
+for uuid in settings.vehicles:
+    settings.vehicles[uuid].ping(settings.locations, settings.tariffs)
