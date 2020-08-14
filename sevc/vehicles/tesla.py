@@ -146,7 +146,7 @@ class TeslaVehicle(Vehicle):
 
         if vehicle_specific and self.__vehicle_id is not None:
             # All vehicle-specific endpoints share the same node
-            endpoint = 'vehicles/' + self.__vehicle_id + '/' + endpoint
+            endpoint = 'vehicles/' + str(self.__vehicle_id) + '/' + endpoint
 
         request = requests.request(method, API_URI + 'api/1/' + endpoint, params=params, headers={
             'Authorization': 'Bearer ' + self.__access_token

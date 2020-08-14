@@ -143,10 +143,8 @@ class Vehicle:
         location: Optional[Location] = None
 
         if position is not None:
-            lat, long = position
-
             for uuid in locations:
-                if locations[uuid].position_match(lat, long):
+                if locations[uuid].position_match(*position):
                     location = locations[uuid]
                     break
 
@@ -204,7 +202,7 @@ class Vehicle:
         if charge is None:
             return None
 
-        return timedelta(seconds=charge * 3600 / power)
+        return timedelta(seconds=(charge * 3600 / power) + 600)  # add a 10 minute buffer
 
     def __next_finish(self, date: Optional[datetime] = None) -> datetime:
         """Calculate the next charge finish time"""

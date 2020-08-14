@@ -90,7 +90,7 @@ class Location:
 
         for resource_set in parsed['resourceSets']:
             for resource in resource_set['resources']:
-                self.__north, self.__east, self.__south, self.__west = resource['bbox']
+                self.__south, self.__west, self.__north, self.__east = resource['bbox']
                 return
 
     def __obtain_tariff(self, tariffs: Dict[str, Tariff]) -> None:
