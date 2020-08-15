@@ -136,6 +136,20 @@ class TeslaVehicle(Vehicle):
         else:
             return sevc.vehicles.WAITING
 
+    def _wake(self) -> bool:
+        """Wake up the vehicle"""
+
+        for i in range(18):  # 18 * 10 seconds = 3 minutes
+            if self.__api_request('vehicle_data') is not None:  # is the vehicle awake?
+                return True
+
+            self.__api_request('wake_up', method='POST')
+
+            # Don't flood the API
+            time.sleep(10)
+
+        return self.__api_request('vehicle_data') is not None  # check one last time
+
     def __api_request(self, endpoint: str, params: Optional[dict] = None,
                       method: str = 'GET', result_key: str = 'response', vehicle_specific: bool = True):
         """Send a request to the API and return the response"""
@@ -251,20 +265,6 @@ class TeslaVehicle(Vehicle):
         # Use the day before the expiry date to make sure the token doesn't expire
         self.__token_expires = datetime.now(UTC).replace(microsecond=0)\
             + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
-
-    def __wake(self) -> bool:
-        """Wake up the vehicle"""
-
-        for i in range(18):  # 18 * 10 seconds = 3 minutes
-            if self.__api_request('vehicle_data') is not None:  # is the vehicle awake?
-                return True
-
-            self.__api_request('wake_up', method='POST')
-
-            # Don't flood the API
-            time.sleep(10)
-
-        return self.__api_request('vehicle_data') is not None  # check one last time
 
 
 def match_option(options: List[str], match: dict, default=None):

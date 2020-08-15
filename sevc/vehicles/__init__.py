@@ -106,6 +106,10 @@ class Vehicle:
         """Get the vehicle's current status"""
         pass
 
+    def _wake(self) -> bool:
+        """Wake up the vehicle"""
+        pass
+
     def dict(self) -> dict:
         """Output the object as a dictionary"""
 
@@ -130,6 +134,11 @@ class Vehicle:
         now = datetime.now(UTC)
 
         if now < self.__next_ping:
+            return
+
+        if not self._wake():
+            self.__next_ping = now + timedelta(minutes=STATUS_WAIT[UNRESPONSIVE])
+            self.__status = UNRESPONSIVE
             return
 
         status = self._status()
