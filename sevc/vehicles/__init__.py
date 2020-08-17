@@ -199,7 +199,7 @@ class Vehicle:
             self.__next_ping = now + timedelta(minutes=1)
         else:
             # Leave the vehicle alone until it's nearly time to charge
-            self.__next_ping = finish_time - timedelta(minutes=10)
+            self.__next_ping = start_time - timedelta(minutes=10)
 
         self.__status = WAITING
 
