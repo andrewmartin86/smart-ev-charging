@@ -21,8 +21,6 @@ class OctopusAgileTariff(Tariff):
         if array is None:
             array = {}
 
-        super().__init__(array, uuid)
-
         if 'api_endpoint' in array:
             self.__api_endpoint = array['api_endpoint']
 
@@ -36,6 +34,8 @@ class OctopusAgileTariff(Tariff):
             self.__api_next_update = datetime.fromisoformat(array['api_next_update'])
         else:
             self.__api_next_update = datetime.now(UTC)
+
+        super().__init__(array, uuid)
 
     def __call__(self):
         """Update the rates from the API"""
