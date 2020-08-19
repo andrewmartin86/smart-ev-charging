@@ -128,7 +128,7 @@ class Vehicle:
 
         return rtn
 
-    def ping(self, locations: Dict[str, Location], tariffs: Dict[str, Tariff]) -> None:
+    def __call__(self, locations: Dict[str, Location], tariffs: Dict[str, Tariff]):
         """Run any appropriate actions for the vehicle"""
 
         now = datetime.now(UTC)

@@ -14,4 +14,4 @@ for uuid in settings.tariffs:
     settings.tariffs[uuid]()
 
 for uuid in settings.vehicles:
-    settings.vehicles[uuid].ping(settings.locations, settings.tariffs)
+    settings.vehicles[uuid](settings.locations, settings.tariffs)
