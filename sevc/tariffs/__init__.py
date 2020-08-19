@@ -55,6 +55,8 @@ class Tariff:
                     'rate': float(rate['rate'])
                 })
 
+        self.__call__()
+
     def __call__(self):
         pass
 
