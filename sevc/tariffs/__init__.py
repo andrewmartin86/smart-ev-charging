@@ -55,8 +55,7 @@ class Tariff:
                     'rate': float(rate['rate'])
                 })
 
-    def update_rates(self) -> None:
-        """Update the unit rates"""
+    def __call__(self):
         pass
 
     def dict(self) -> dict:
