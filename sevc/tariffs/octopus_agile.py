@@ -49,7 +49,7 @@ class OctopusAgileTariff(Tariff):
             }
         }
 
-    def update_rates(self) -> None:
+    def __call__(self):
         """Update the rates from the API"""
 
         now = datetime.now(UTC)
