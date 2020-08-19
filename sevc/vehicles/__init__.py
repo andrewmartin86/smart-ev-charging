@@ -90,44 +90,6 @@ class Vehicle:
         if 'status' in array:
             self.__status = int(array['status'])
 
-    def _charge_requirement(self) -> Optional[float]:
-        """Calculate how much charge is required"""
-        pass
-
-    def _position(self) -> Optional[List[float]]:
-        """Get the vehicle's current position"""
-        pass
-
-    def _start_charging(self) -> bool:
-        """Start the vehicle charging"""
-        pass
-
-    def _status(self) -> int:
-        """Get the vehicle's current status"""
-        pass
-
-    def _wake(self) -> bool:
-        """Wake up the vehicle"""
-        pass
-
-    def dict(self) -> dict:
-        """Output the object as a dictionary"""
-
-        rtn = {
-            'module': self.__module,
-            'class': self.__class,
-            'name': self.name,
-            'battery': self._battery,
-            'next_ping': self.__next_ping.astimezone().isoformat(),
-            'status': int(self.__status),
-            'finish_times': []
-        }
-
-        for finish_time in self.__finish_times:
-            rtn['finish_times'].append(finish_time.isoformat())
-
-        return rtn
-
     def __call__(self, locations: Dict[str, Location], tariffs: Dict[str, Tariff]):
         """Run any appropriate actions for the vehicle"""
 
@@ -202,6 +164,44 @@ class Vehicle:
             self.__next_ping = start_time - timedelta(minutes=10)
 
         self.__status = WAITING
+
+    def _charge_requirement(self) -> Optional[float]:
+        """Calculate how much charge is required"""
+        pass
+
+    def _position(self) -> Optional[List[float]]:
+        """Get the vehicle's current position"""
+        pass
+
+    def _start_charging(self) -> bool:
+        """Start the vehicle charging"""
+        pass
+
+    def _status(self) -> int:
+        """Get the vehicle's current status"""
+        pass
+
+    def _wake(self) -> bool:
+        """Wake up the vehicle"""
+        pass
+
+    def dict(self) -> dict:
+        """Output the object as a dictionary"""
+
+        rtn = {
+            'module': self.__module,
+            'class': self.__class,
+            'name': self.name,
+            'battery': self._battery,
+            'next_ping': self.__next_ping.astimezone().isoformat(),
+            'status': int(self.__status),
+            'finish_times': []
+        }
+
+        for finish_time in self.__finish_times:
+            rtn['finish_times'].append(finish_time.isoformat())
+
+        return rtn
 
     def __charge_time(self, power: float) -> Optional[timedelta]:
         """Calculate how much time is needed to charge"""

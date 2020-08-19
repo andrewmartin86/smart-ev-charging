@@ -37,18 +37,6 @@ class OctopusAgileTariff(Tariff):
         else:
             self.__api_next_update = datetime.now(UTC)
 
-    def dict(self) -> dict:
-        """Output the object as a dictionary"""
-
-        return {
-            **super().dict(),
-            **{
-                'api_endpoint': self.__api_endpoint,
-                'api_key': self.__api_key,
-                'api_next_update': self.__api_next_update.astimezone().isoformat()
-            }
-        }
-
     def __call__(self):
         """Update the rates from the API"""
 
@@ -81,6 +69,18 @@ class OctopusAgileTariff(Tariff):
         if self.__api_next_update <= now:
             # Today's update has already happened: wait until tomorrow
             self.__api_next_update += timedelta(days=1)
+
+    def dict(self) -> dict:
+        """Output the object as a dictionary"""
+
+        return {
+            **super().dict(),
+            **{
+                'api_endpoint': self.__api_endpoint,
+                'api_key': self.__api_key,
+                'api_next_update': self.__api_next_update.astimezone().isoformat()
+            }
+        }
 
     def __obtain_api_details(self) -> None:
         """Obtain the API details"""
