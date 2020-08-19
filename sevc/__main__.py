@@ -10,8 +10,5 @@ if not os.path.isdir(base_dir + '/var'):
 
 settings = Settings(base_dir + '/var/sevc.json')
 
-for uuid in settings.tariffs:
-    settings.tariffs[uuid]()
-
 for uuid in settings.vehicles:
     settings.vehicles[uuid](settings.locations, settings.tariffs)
