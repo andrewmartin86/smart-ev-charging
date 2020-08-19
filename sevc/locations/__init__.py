@@ -58,6 +58,17 @@ class Location:
         else:
             self.power = float(input('Please enter the power (in kW) of the charger at this location: '))
 
+    def __contains__(self, coordinates):
+        """Are the given coordinates in this location?"""
+
+        if not isinstance(coordinates, list):
+            return False
+
+        lat, long = coordinates
+
+        return self.__south <= lat <= self.__north\
+            and (self.__west <= long <= self.__east) == (self.__east > self.__west)
+
     def dict(self) -> dict:
         """Output the object as a dictionary"""
 
@@ -67,11 +78,6 @@ class Location:
             'coordinates': [self.__north, self.__east, self.__south, self.__west],
             'power': self.power
         }
-
-    def position_match(self, lat: float, long: float) -> bool:
-        """Are the given coordinates in this location?"""
-        return self.__south <= lat <= self.__north\
-            and (self.__west <= long <= self.__east) == (self.__east > self.__west)
 
     def __obtain_coordinates(self) -> None:
         """Obtain the coordinates for a given location"""

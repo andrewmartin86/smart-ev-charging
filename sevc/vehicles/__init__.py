@@ -115,7 +115,7 @@ class Vehicle:
 
         if position is not None:
             for uuid in locations:
-                if locations[uuid].position_match(*position):
+                if position in locations[uuid]:
                     location = locations[uuid]
                     break
 
