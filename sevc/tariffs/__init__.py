@@ -143,13 +143,18 @@ class Tariff:
         if len(self._rates) == 0:
             return
 
+        rates = sorted(self._rates, key=lambda item: item['start'])
+        self._rates = rates
+
         rates = []
+        latest = None
         now = datetime.now(UTC)
 
         for rate in self._rates:
-            if rate['end'] < now:
+            if (latest is not None and rate['start'] == latest) or rate['end'] < now:
                 continue
 
             rates.append(rate)
+            latest = rate['start']
 
         self._rates = rates

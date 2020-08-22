@@ -59,8 +59,6 @@ class OctopusAgileTariff(Tariff):
                 'rate': float(result['value_inc_vat'])
             })
 
-        rates = sorted(self._rates, key=lambda item: item['start'])
-        self._rates = rates
         self._clear_rates()
 
         # Updates are normally done by 4pm, so try an hour earlier
