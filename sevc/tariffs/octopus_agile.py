@@ -80,7 +80,7 @@ class OctopusAgileTariff(Tariff):
             **{
                 'api_endpoint': self.__api_endpoint,
                 'api_key': self.__api_key,
-                'api_next_update': self.__api_next_update.astimezone().replace(microsecond=0).isoformat()
+                'api_next_update': self.__api_next_update.astimezone().replace(second=0, microsecond=0).isoformat()
             }
         }
 

@@ -193,13 +193,13 @@ class Vehicle:
             'class': self.__class,
             'name': self.name,
             'battery': self._battery,
-            'next_ping': self.__next_ping.astimezone().replace(microsecond=0).isoformat(),
+            'next_ping': self.__next_ping.astimezone().replace(second=0, microsecond=0).isoformat(),
             'status': int(self.__status),
             'finish_times': []
         }
 
         for finish_time in self.__finish_times:
-            rtn['finish_times'].append(finish_time.replace(microsecond=0).isoformat())
+            rtn['finish_times'].append(finish_time.replace(second=0, microsecond=0).isoformat())
 
         return rtn
 

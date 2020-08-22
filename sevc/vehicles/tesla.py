@@ -78,7 +78,7 @@ class TeslaVehicle(Vehicle):
             **{
                 'access_token': self.__access_token,
                 'refresh_token': self.__refresh_token,
-                'token_expires': self.__token_expires.astimezone().replace(microsecond=0).isoformat(),
+                'token_expires': self.__token_expires.astimezone().replace(second=0, microsecond=0).isoformat(),
                 'vehicle_id': self.__vehicle_id
             }
         }

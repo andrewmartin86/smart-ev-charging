@@ -70,8 +70,8 @@ class Tariff:
 
         for rate in self._rates:
             rtn['rates'].append({
-                'start': rate['start'].astimezone().replace(microsecond=0).isoformat(),
-                'end': rate['end'].astimezone().replace(microsecond=0).isoformat(),
+                'start': rate['start'].astimezone().replace(second=0, microsecond=0).isoformat(),
+                'end': rate['end'].astimezone().replace(second=0, microsecond=0).isoformat(),
                 'rate': float(rate['rate'])
             })
 
