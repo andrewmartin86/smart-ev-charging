@@ -151,10 +151,15 @@ class Tariff:
         now = datetime.now(UTC)
 
         for rate in self._rates:
-            if (latest is not None and rate['start'] == latest) or rate['end'] < now:
+            if (latest is not None and rate['start'] == latest['start']) or rate['end'] < now:
+                continue
+
+            if latest is not None and rate['rate'] == latest['rate']:
+                rates[-1]['end'] = rate['end']
+                latest['end'] = rate['end']
                 continue
 
             rates.append(rate)
-            latest = rate['start']
+            latest = rate
 
         self._rates = rates
