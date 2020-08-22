@@ -33,14 +33,14 @@ class OctopusAgileTariff(Tariff):
             self.__obtain_api_details()
 
         if 'api_next_update' in array:
-            self.__api_next_update = datetime.fromisoformat(array['api_next_update'])
+            self.__api_next_update = datetime.fromisoformat(array['api_next_update']).astimezone()
         else:
-            self.__api_next_update = datetime.now(UTC)
+            self.__api_next_update = datetime.now(UTC).astimezone()
 
     def __call__(self):
         """Update the rates from the API"""
 
-        now = datetime.now(UTC)
+        now = datetime.now(UTC).astimezone()
 
         if self.__api_next_update is not None and self.__api_next_update > now:
             return
@@ -55,20 +55,24 @@ class OctopusAgileTariff(Tariff):
 
         for result in parsed['results']:
             self._rates.append({
-                'start': dateutil.parser.isoparse(result['valid_from']).astimezone(UTC),
-                'end': dateutil.parser.isoparse(result['valid_to']).astimezone(UTC),
+                'start': dateutil.parser.isoparse(result['valid_from']).astimezone(),
+                'end': dateutil.parser.isoparse(result['valid_to']).astimezone(),
                 'rate': float(result['value_inc_vat'])
             })
 
         rates = sorted(self._rates, key=lambda item: item['start'])
         self._rates = rates
 
-        # Updates are normally done by 4pm
-        self.__api_next_update = now.replace(hour=17, minute=0, second=0, microsecond=0)
+        # Updates are normally done by 4pm, so try an hour earlier
+        self.__api_next_update = now.replace(hour=15, minute=0, second=0, microsecond=0)
 
         if self.__api_next_update <= now:
             # Today's update has already happened: wait until tomorrow
             self.__api_next_update += timedelta(days=1)
+
+        if self.__api_next_update > rates[-1]['end']:
+            # Next update is after the last rate, so do one in an hour's time
+            self.__api_next_update = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
