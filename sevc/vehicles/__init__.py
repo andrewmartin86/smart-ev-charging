@@ -93,7 +93,7 @@ class Vehicle:
     def __call__(self, locations: Dict[str, Location], tariffs: Dict[str, Tariff]):
         """Run any appropriate actions for the vehicle"""
 
-        now = datetime.now(UTC)
+        now = datetime.now(UTC).astimezone().replace(microsecond=0)
 
         if now < self.__next_ping:
             return
