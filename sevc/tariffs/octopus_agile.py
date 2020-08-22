@@ -68,7 +68,7 @@ class OctopusAgileTariff(Tariff):
             # Today's update has already happened: wait until tomorrow
             self.__api_next_update += timedelta(days=1)
 
-        if self.__api_next_update > rates[-1]['end']:
+        if self.__api_next_update > self._rates[-1]['end']:
             # Next update is after the last rate, so do one in an hour's time
             self.__api_next_update = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
 
