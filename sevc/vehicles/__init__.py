@@ -149,7 +149,7 @@ class Vehicle:
 
         finish_time = self.__next_finish()
         start_time = tariff.optimal_charge_time(charge_time, finish_time)
-        now = datetime.now(UTC)
+        now = datetime.now(UTC).astimezone()
 
         if start_time <= now and self._start_charging():
             self.__next_ping = finish_time + timedelta(minutes=30)  # leave the vehicle alone while charging
@@ -158,7 +158,7 @@ class Vehicle:
 
         if now + timedelta(minutes=10) >= start_time:
             # Nearly time to charge: try again in a minute in case it's needed earlier
-            self.__next_ping = now + timedelta(minutes=1)
+            self.__next_ping = now.replace(microsecond=0) + timedelta(minutes=1)
         else:
             # Leave the vehicle alone until it's nearly time to charge
             self.__next_ping = start_time - timedelta(minutes=10)
@@ -211,7 +211,7 @@ class Vehicle:
         if charge is None:
             return None
 
-        return timedelta(seconds=round(charge * 3600 / power) + 600)  # add a 10 minute buffer
+        return timedelta(seconds=round(charge * 3600 / power) + 600, microseconds=0)  # add a 10 minute buffer
 
     def __next_finish(self, date: Optional[datetime] = None) -> datetime:
         """Calculate the next charge finish time"""

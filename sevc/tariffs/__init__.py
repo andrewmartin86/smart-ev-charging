@@ -135,7 +135,7 @@ class Tariff:
                 optimal_cost = cost
                 optimal_time = time
 
-        return optimal_time
+        return optimal_time.replace(microsecond=0)
 
     def _clear_rates(self) -> None:
         """Clear historic rates"""
