@@ -51,7 +51,6 @@ class OctopusAgileTariff(Tariff):
             return
 
         parsed = request.json()
-        self._clear_rates()
 
         for result in parsed['results']:
             self._rates.append({
@@ -62,6 +61,7 @@ class OctopusAgileTariff(Tariff):
 
         rates = sorted(self._rates, key=lambda item: item['start'])
         self._rates = rates
+        self._clear_rates()
 
         # Updates are normally done by 4pm, so try an hour earlier
         self.__api_next_update = now.replace(hour=15, minute=0, second=0, microsecond=0)
