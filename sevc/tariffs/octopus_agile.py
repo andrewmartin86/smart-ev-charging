@@ -62,7 +62,7 @@ class OctopusAgileTariff(Tariff):
         self._clear_rates()
 
         # Updates are normally done by 4pm, so try an hour earlier
-        self.__api_next_update = now.replace(hour=15, minute=0, second=0, microsecond=0)
+        self.__api_next_update = now.replace(hour=15, minute=0, second=0)
 
         if self.__api_next_update <= now:
             # Today's update has already happened: wait until tomorrow
@@ -70,7 +70,7 @@ class OctopusAgileTariff(Tariff):
 
         if self.__api_next_update > self._rates[-1]['end']:
             # Next update is after the last rate, so do one in an hour's time
-            self.__api_next_update = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
+            self.__api_next_update = now.replace(minute=0, second=0) + timedelta(hours=1)
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
@@ -80,7 +80,7 @@ class OctopusAgileTariff(Tariff):
             **{
                 'api_endpoint': self.__api_endpoint,
                 'api_key': self.__api_key,
-                'api_next_update': self.__api_next_update.astimezone().isoformat()
+                'api_next_update': self.__api_next_update.astimezone().replace(microsecond=0).isoformat()
             }
         }
 

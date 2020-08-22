@@ -93,7 +93,7 @@ class Vehicle:
     def __call__(self, locations: Dict[str, Location], tariffs: Dict[str, Tariff]):
         """Run any appropriate actions for the vehicle"""
 
-        now = datetime.now(UTC).astimezone().replace(microsecond=0)
+        now = datetime.now(UTC).astimezone()
 
         if now < self.__next_ping:
             return
@@ -158,7 +158,7 @@ class Vehicle:
 
         if now + timedelta(minutes=10) >= start_time:
             # Nearly time to charge: try again in a minute in case it's needed earlier
-            self.__next_ping = now.replace(microsecond=0) + timedelta(minutes=1)
+            self.__next_ping = now + timedelta(minutes=1)
         else:
             # Leave the vehicle alone until it's nearly time to charge
             self.__next_ping = start_time - timedelta(minutes=10)
@@ -193,13 +193,13 @@ class Vehicle:
             'class': self.__class,
             'name': self.name,
             'battery': self._battery,
-            'next_ping': self.__next_ping.astimezone().isoformat(),
+            'next_ping': self.__next_ping.astimezone().replace(microsecond=0).isoformat(),
             'status': int(self.__status),
             'finish_times': []
         }
 
         for finish_time in self.__finish_times:
-            rtn['finish_times'].append(finish_time.isoformat())
+            rtn['finish_times'].append(finish_time.replace(microsecond=0).isoformat())
 
         return rtn
 
@@ -211,7 +211,7 @@ class Vehicle:
         if charge is None:
             return None
 
-        return timedelta(seconds=round(charge * 3600 / power) + 600, microseconds=0)  # add a 10 minute buffer
+        return timedelta(seconds=round(charge * 3600 / power) + 600)  # add a 10 minute buffer
 
     def __next_finish(self, date: Optional[datetime] = None) -> datetime:
         """Calculate the next charge finish time"""
@@ -222,7 +222,7 @@ class Vehicle:
             date = now
 
         finish = self.__finish_times[date.weekday()]
-        rtn = date.replace(hour=finish.hour, minute=finish.minute, second=finish.second, microsecond=0)
+        rtn = date.replace(hour=finish.hour, minute=finish.minute, second=finish.second)
 
         if rtn <= now:
             # Today's finish time has already passed: return tomorrow's

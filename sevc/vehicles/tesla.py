@@ -78,7 +78,7 @@ class TeslaVehicle(Vehicle):
             **{
                 'access_token': self.__access_token,
                 'refresh_token': self.__refresh_token,
-                'token_expires': self.__token_expires.astimezone().isoformat(),
+                'token_expires': self.__token_expires.astimezone().replace(microsecond=0).isoformat(),
                 'vehicle_id': self.__vehicle_id
             }
         }
@@ -201,8 +201,7 @@ class TeslaVehicle(Vehicle):
         self.__refresh_token = parsed['refresh_token']
 
         # Use the day before the expiry date to make sure the token doesn't expire
-        self.__token_expires = datetime.now(UTC).replace(microsecond=0) \
-            + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
+        self.__token_expires = datetime.now(UTC) + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
 
     def __obtain_vehicle_id(self) -> None:
         """Obtain the vehicle ID"""
@@ -263,8 +262,7 @@ class TeslaVehicle(Vehicle):
         self.__refresh_token = parsed['refresh_token']
 
         # Use the day before the expiry date to make sure the token doesn't expire
-        self.__token_expires = datetime.now(UTC).replace(microsecond=0)\
-            + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
+        self.__token_expires = datetime.now(UTC) + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
 
 
 def match_option(options: List[str], match: dict, default=None):

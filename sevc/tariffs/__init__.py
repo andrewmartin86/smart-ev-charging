@@ -70,8 +70,8 @@ class Tariff:
 
         for rate in self._rates:
             rtn['rates'].append({
-                'start': rate['start'].astimezone().isoformat(),
-                'end': rate['end'].astimezone().isoformat(),
+                'start': rate['start'].astimezone().replace(microsecond=0).isoformat(),
+                'end': rate['end'].astimezone().replace(microsecond=0).isoformat(),
                 'rate': float(rate['rate'])
             })
 
@@ -135,7 +135,7 @@ class Tariff:
                 optimal_cost = cost
                 optimal_time = time
 
-        return optimal_time.replace(microsecond=0)
+        return optimal_time
 
     def _clear_rates(self) -> None:
         """Clear historic rates"""
