@@ -1,7 +1,12 @@
+import base64
+import hashlib
+import random
 import requests
+import string
 import sevc.vehicles
 import time
 
+from bs4 import BeautifulSoup
 from datetime import datetime
 from datetime import timedelta
 from sevc.vehicles import Vehicle
@@ -9,10 +14,15 @@ from typing import List
 from typing import Optional
 
 from dateutil.tz import UTC
+from urllib.parse import parse_qs
+from urllib.parse import urlencode
 
 API_URI = 'https://owner-api.teslamotors.com/'
 CLIENT_ID = '81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384'
 CLIENT_SECRET = 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3'
+
+AUTH_URI = 'https://auth.tesla.com/oauth2/v3/'
+AUTH_CALLBACK = 'https://auth.tesla.com/void/callback'
 
 MODEL_CODES = {
     'MDL3': 'Model 3',
@@ -182,26 +192,82 @@ class TeslaVehicle(Vehicle):
         print('Please enter your credentials to log into Tesla.')
         print('These will be used purely to generate an API access token, and will not be stored.')
 
-        # Storing the credentials would be bad, wouldn't it?
+        code_verifier = ''.join(random.choice(string.hexdigits) for i in range(86))
 
-        request = requests.post(API_URI + 'oauth/token', {
-            'grant_type': 'password',
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
-            'email': input('Email: '),
-            'password': input('Password: ')
-        })
+        code_challenge = base64.b64encode(hashlib.sha256(code_verifier.encode('ascii')).hexdigest().encode('ascii'))\
+            .decode('ascii')
 
-        if request.status_code != 200:
+        auth_get = {
+            'client_id': 'ownerapi',
+            'code_challenge': code_challenge,
+            'code_challenge_method': 'S256',
+            'redirect_uri': AUTH_CALLBACK,
+            'response_type': 'code',
+            'scope': 'openid email offline_access',
+            'state': 'sevc'
+        }
+
+        form_request = requests.get(AUTH_URI + 'authorize', auth_get)
+
+        if form_request.status_code != 200:
             return
 
-        parsed = request.json()
+        cookie = form_request.headers.get('set-cookie')
+        hidden = BeautifulSoup(form_request.text).find('form').find_all('input', {'type': 'hidden'})
+        auth_post = {}
 
-        self.__access_token = parsed['access_token']
-        self.__refresh_token = parsed['refresh_token']
+        for field in hidden:
+            auth_post[field.get('name')] = field.get('value')
+
+        # Storing the credentials would be bad, wouldn't it?
+        auth_request = requests.post(AUTH_URI + 'authorize?' + urlencode(auth_get), {
+            **auth_post,
+            **{
+                'identity': input('Email: '),
+                'credential': input('Password: ')
+            }
+        }, headers={
+            'Cookie': cookie
+        })
+
+        if auth_request.status_code != 302:
+            return
+
+        auth_redirect = auth_request.headers.get('location')
+        auth_code = parse_qs(auth_redirect)['code']
+
+        temp_request = requests.post(AUTH_URI + 'token', json={
+            'grant_type': 'authorization_code',
+            'client_id': 'ownerapi',
+            'code': auth_code,
+            'code_verifier': code_verifier,
+            'redirect_uri': AUTH_CALLBACK
+        })
+
+        if temp_request.status_code != 200:
+            return
+
+        temp_parsed = temp_request.json()
+        temp_token = temp_parsed['access_token']
+
+        token_request = requests.post(API_URI + 'oauth/token', {
+            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET
+        }, headers={
+            'Authorization': 'Bearer ' + temp_token
+        })
+
+        if token_request.status_code != 200:
+            return
+
+        token_parsed = token_request.json()
+
+        self.__access_token = token_parsed['access_token']
+        self.__refresh_token = token_parsed['refresh_token']
 
         # Use the day before the expiry date to make sure the token doesn't expire
-        self.__token_expires = datetime.now(UTC) + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
+        self.__token_expires = datetime.now(UTC) + timedelta(seconds=token_parsed['expires_in']) - timedelta(days=1)
 
     def __obtain_vehicle_id(self) -> None:
         """Obtain the vehicle ID"""
