@@ -17,12 +17,9 @@ from dateutil.tz import UTC
 from urllib.parse import parse_qs
 from urllib.parse import urlencode
 
-API_URI = 'https://owner-api.teslamotors.com/'
+
 CLIENT_ID = '81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384'
 CLIENT_SECRET = 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3'
-
-AUTH_URI = 'https://auth.tesla.com/oauth2/v3/'
-AUTH_CALLBACK = 'https://auth.tesla.com/void/callback'
 
 MODEL_CODES = {
     'MDL3': 'Model 3',
@@ -171,9 +168,12 @@ class TeslaVehicle(Vehicle):
             # All vehicle-specific endpoints share the same node
             endpoint = 'vehicles/' + str(self.__vehicle_id) + '/' + endpoint
 
-        request = requests.request(method, API_URI + 'api/1/' + endpoint, params=params, headers={
-            'Authorization': 'Bearer ' + self.__access_token
-        })
+        request = requests.request(
+            method,
+            'https://owner-api.teslamotors.com/api/1/' + endpoint,
+            params=params,
+            headers={'Authorization': 'Bearer ' + self.__access_token}
+        )
 
         if request.status_code != 200:
             return None
@@ -201,13 +201,13 @@ class TeslaVehicle(Vehicle):
             'client_id': 'ownerapi',
             'code_challenge': code_challenge,
             'code_challenge_method': 'S256',
-            'redirect_uri': AUTH_CALLBACK,
+            'redirect_uri': 'https://auth.tesla.com/void/callback',
             'response_type': 'code',
             'scope': 'openid email offline_access',
             'state': 'sevc'
         }
 
-        form_request = requests.get(AUTH_URI + 'authorize', auth_get)
+        form_request = requests.get('https://auth.tesla.com/oauth2/v3/authorize', auth_get)
 
         if form_request.status_code != 200:
             return
@@ -220,7 +220,7 @@ class TeslaVehicle(Vehicle):
             auth_post[field.get('name')] = field.get('value')
 
         # Storing the credentials would be bad, wouldn't it?
-        auth_request = requests.post(AUTH_URI + 'authorize?' + urlencode(auth_get), {
+        auth_request = requests.post('https://auth.tesla.com/oauth2/v3/authorize?' + urlencode(auth_get), {
             **auth_post,
             **{
                 'identity': input('Email: '),
@@ -236,12 +236,12 @@ class TeslaVehicle(Vehicle):
         auth_redirect = auth_request.headers.get('location')
         auth_code = parse_qs(auth_redirect)['code']
 
-        temp_request = requests.post(AUTH_URI + 'token', json={
+        temp_request = requests.post('https://auth.tesla.com/oauth2/v3/token', json={
             'grant_type': 'authorization_code',
             'client_id': 'ownerapi',
             'code': auth_code,
             'code_verifier': code_verifier,
-            'redirect_uri': AUTH_CALLBACK
+            'redirect_uri': 'https://auth.tesla.com/void/callback'
         })
 
         if temp_request.status_code != 200:
@@ -250,7 +250,7 @@ class TeslaVehicle(Vehicle):
         temp_parsed = temp_request.json()
         temp_token = temp_parsed['access_token']
 
-        token_request = requests.post(API_URI + 'oauth/token', {
+        token_request = requests.post('https://owner-api.teslamotors.com/oauth/token', {
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET
@@ -312,7 +312,7 @@ class TeslaVehicle(Vehicle):
             # No refresh token, so log in from scratch
             return self.__login()
 
-        request = requests.post(API_URI + 'oauth/token', {
+        request = requests.post('https://owner-api.teslamotors.com/oauth/token', {
             'grant_type': 'refresh_token',
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET,

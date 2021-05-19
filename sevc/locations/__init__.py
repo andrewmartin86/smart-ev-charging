@@ -8,7 +8,6 @@ from typing import List
 from typing import Optional
 
 
-API_ENDPOINT = 'https://dev.virtualearth.net/REST/v1/Locations'
 API_KEY = 'Av73UhSnMiyn0ikU68pvish4BGguc_C5RnatjNg4DQSUhEuv8XqojS6Axojv3LjH'
 
 
@@ -84,7 +83,7 @@ class Location:
 
         location = input('Please enter an accurate location (eg a post code): ')
 
-        request = requests.get(API_ENDPOINT, {
+        request = requests.get('https://dev.virtualearth.net/REST/v1/Locations', {
             'query': location,
             'key': API_KEY
         })
