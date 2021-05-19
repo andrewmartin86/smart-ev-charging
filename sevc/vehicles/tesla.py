@@ -207,34 +207,17 @@ class TeslaVehicle(Vehicle):
             'state': 'sevc'
         }
 
-        form_request = requests.get('https://auth.tesla.com/oauth2/v3/authorize', auth_get)
+        print('In Chrome or other Chromium-based browser, open the developer tools by pressing F12.')
+        print('In the browser, go to the below address and follow Tesla\'s login process.')
+        print()
+        print('https://auth.tesla.com/oauth2/v3/authorize?' + urlencode(auth_get))
+        print()
+        print('Once logged in, you\'ll end up with a 404 Page Not Found message.')
+        print('In Developer tools, go to the Network tab. Look for a request beginning with callback?code=')
+        print('Right-click on that request, copy the full URL and paste it below.')
 
-        if form_request.status_code != 200:
-            return
-
-        cookie = form_request.headers.get('set-cookie')
-        hidden = BeautifulSoup(form_request.text).find('form').find_all('input', {'type': 'hidden'})
-        auth_post = {}
-
-        for field in hidden:
-            auth_post[field.get('name')] = field.get('value')
-
-        # Storing the credentials would be bad, wouldn't it?
-        auth_request = requests.post('https://auth.tesla.com/oauth2/v3/authorize?' + urlencode(auth_get), {
-            **auth_post,
-            **{
-                'identity': input('Email: '),
-                'credential': input('Password: ')
-            }
-        }, headers={
-            'Cookie': cookie
-        })
-
-        if auth_request.status_code != 302:
-            return
-
-        auth_redirect = auth_request.headers.get('location')
-        auth_code = parse_qs(auth_redirect)['code']
+        callback = input('Callback: ')
+        auth_code = parse_qs(callback)['code']
 
         temp_request = requests.post('https://auth.tesla.com/oauth2/v3/token', json={
             'grant_type': 'authorization_code',
