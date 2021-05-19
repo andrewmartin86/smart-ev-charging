@@ -219,7 +219,7 @@ class TeslaVehicle(Vehicle):
         callback = input('Callback: ')
         auth_code = parse_qs(callback)['code']
 
-        temp_request = requests.post('https://auth.tesla.com/oauth2/v3/token', json={
+        outer_request = requests.post('https://auth.tesla.com/oauth2/v3/token', json={
             'grant_type': 'authorization_code',
             'client_id': 'ownerapi',
             'code': auth_code,
@@ -227,30 +227,30 @@ class TeslaVehicle(Vehicle):
             'redirect_uri': 'https://auth.tesla.com/void/callback'
         })
 
-        if temp_request.status_code != 200:
+        if outer_request.status_code != 200:
             return
 
-        temp_parsed = temp_request.json()
-        temp_token = temp_parsed['access_token']
+        outer_parsed = outer_request.json()
+        outer_token = outer_parsed['access_token']
+        self.__refresh_token = outer_parsed['refresh_token']
 
-        token_request = requests.post('https://owner-api.teslamotors.com/oauth/token', {
+        inner_request = requests.post('https://owner-api.teslamotors.com/oauth/token', {
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET
         }, headers={
-            'Authorization': 'Bearer ' + temp_token
+            'Authorization': 'Bearer ' + outer_token
         })
 
-        if token_request.status_code != 200:
+        if inner_request.status_code != 200:
             return
 
-        token_parsed = token_request.json()
+        inner_parsed = inner_request.json()
 
-        self.__access_token = token_parsed['access_token']
-        self.__refresh_token = token_parsed['refresh_token']
+        self.__access_token = inner_parsed['access_token']
 
         # Use the day before the expiry date to make sure the token doesn't expire
-        self.__token_expires = datetime.now(UTC) + timedelta(seconds=token_parsed['expires_in']) - timedelta(days=1)
+        self.__token_expires = datetime.now(UTC) + timedelta(seconds=inner_parsed['expires_in']) - timedelta(days=1)
 
     def __obtain_vehicle_id(self) -> None:
         """Obtain the vehicle ID"""
@@ -295,23 +295,38 @@ class TeslaVehicle(Vehicle):
             # No refresh token, so log in from scratch
             return self.__login()
 
-        request = requests.post('https://owner-api.teslamotors.com/oauth/token', {
+        outer_request = requests.post('https://auth.tesla.com/oauth2/v3/token', json={
             'grant_type': 'refresh_token',
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
-            'refresh_token': self.__refresh_token
+            'client_id': 'ownerapi',
+            'refresh_token': self.__refresh_token,
+            'scope': 'openid email offline_access'
         })
 
-        if request.status_code != 200:
+        if outer_request.status_code != 200:
             return self.__login()
 
-        parsed = request.json()
+        outer_parsed = outer_request.json()
 
-        self.__access_token = parsed['access_token']
-        self.__refresh_token = parsed['refresh_token']
+        outer_token = outer_parsed['access_token']
+        self.__refresh_token = outer_parsed['refresh_token']
+
+        inner_request = requests.post('https://owner-api.teslamotors.com/oauth/token', {
+            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET
+        }, headers={
+            'Authorization': 'Bearer ' + outer_token
+        })
+
+        if inner_request.status_code != 200:
+            return self.__login()
+
+        inner_parsed = inner_request.json()
+
+        self.__access_token = inner_parsed['access_token']
 
         # Use the day before the expiry date to make sure the token doesn't expire
-        self.__token_expires = datetime.now(UTC) + timedelta(seconds=parsed['expires_in']) - timedelta(days=1)
+        self.__token_expires = datetime.now(UTC) + timedelta(seconds=inner_parsed['expires_in']) - timedelta(days=1)
 
 
 def match_option(options: List[str], match: dict, default=None):
