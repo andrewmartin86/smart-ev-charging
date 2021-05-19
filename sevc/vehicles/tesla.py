@@ -6,7 +6,6 @@ import string
 import sevc.vehicles
 import time
 
-from bs4 import BeautifulSoup
 from datetime import datetime
 from datetime import timedelta
 from sevc.vehicles import Vehicle
@@ -217,14 +216,21 @@ class TeslaVehicle(Vehicle):
         print('Right-click on that request, copy the full URL and paste it below.')
 
         callback = input('Callback: ')
-        auth_code = parse_qs(callback)['code']
+        callback_parsed = parse_qs(callback)
+
+        if 'code' in callback_parsed:
+            auth_code = callback_parsed['code']
+        elif auth_get['redirect_uri'] + 'code' in callback_parsed:
+            auth_code = callback_parsed[auth_get['redirect_uri'] + 'code']
+        else:
+            return
 
         outer_request = requests.post('https://auth.tesla.com/oauth2/v3/token', json={
             'grant_type': 'authorization_code',
             'client_id': 'ownerapi',
             'code': auth_code,
             'code_verifier': code_verifier,
-            'redirect_uri': 'https://auth.tesla.com/void/callback'
+            'redirect_uri': auth_get['redirect_uri']
         })
 
         if outer_request.status_code != 200:
