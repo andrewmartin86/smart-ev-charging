@@ -187,10 +187,6 @@ class TeslaVehicle(Vehicle):
     def __login(self) -> None:
         """Log into the API to obtain an access token"""
 
-        print()
-        print('Please enter your credentials to log into Tesla.')
-        print('These will be used purely to generate an API access token, and will not be stored.')
-
         code_verifier = ''.join(random.choice(string.hexdigits) for i in range(86))
 
         code_challenge = base64.b64encode(hashlib.sha256(code_verifier.encode('ascii')).hexdigest().encode('ascii'))\
@@ -206,7 +202,8 @@ class TeslaVehicle(Vehicle):
             'state': 'sevc'
         }
 
-        print('In Chrome or other Chromium-based browser, open the developer tools by pressing F12.')
+        print()
+        print('In Chrome or another Chromium-based browser, open the developer tools by pressing F12.')
         print('In the browser, go to the below address and follow Tesla\'s login process.')
         print()
         print('https://auth.tesla.com/oauth2/v3/authorize?' + urlencode(auth_get))
