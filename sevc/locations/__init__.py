@@ -108,5 +108,9 @@ class Location:
             t += 1
             print(str(t) + ': ' + tariffs[tariff_uuid].name)
 
-        self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: ')) - 1]
+        if t == 1:
+            print('Pre-selecting only available tariff')
+            self.tariff = tariff_uuids[0]
+        else:
+            self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: ')) - 1]
 
