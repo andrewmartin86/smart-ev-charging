@@ -38,7 +38,12 @@ def instantiate_subclass(parent: type):
 
             classes.append([module, name])
 
-    class_def = classes[int(input('Please choose a ' + parent.__name__.lower() + ' type: ')) - 1]
+    if i == 1:
+        print('Pre-selected only available ' + parent.__name__.lower() + ' type')
+        class_def = classes[0]
+    else:
+        class_def = classes[int(input('Please choose a ' + parent.__name__.lower() + ' type: ')) - 1]
+
     subclass = getattr(*class_def)
     return subclass()
 

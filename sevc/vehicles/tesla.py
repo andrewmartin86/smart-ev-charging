@@ -1,8 +1,5 @@
 import base64
-import hashlib
-import random
 import requests
-import string
 import sevc.vehicles
 import time
 
