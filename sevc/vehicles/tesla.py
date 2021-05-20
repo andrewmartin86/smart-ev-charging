@@ -20,6 +20,9 @@ from urllib.parse import urlencode
 CLIENT_ID = '81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384'
 CLIENT_SECRET = 'c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3'
 
+AUTH_VERIFIER = '9CFc7d5A8BF3abAbFfD5b42B25aEB0f5a5ffcbb86eF9cBcA43AD2A7c86C6f8DfdA6e04ED62fAfDAe3897ee'
+AUTH_CHALLENGE = 'YzJmOTM2YTBhMTA2OWNlN2IwZDgwMzY1OWU1MjkwYzM2ZjdkNTk3NWQxMmFjNzkzOTdiOTc0YzM5OTcyY2MyZg=='
+
 MODEL_CODES = {
     'MDL3': 'Model 3',
     'MDLX': 'Model X',
@@ -187,14 +190,9 @@ class TeslaVehicle(Vehicle):
     def __login(self) -> None:
         """Log into the API to obtain an access token"""
 
-        code_verifier = ''.join(random.choice(string.hexdigits) for i in range(86))
-
-        code_challenge = base64.b64encode(hashlib.sha256(code_verifier.encode('ascii')).hexdigest().encode('ascii'))\
-            .decode('ascii')
-
         auth_get = {
             'client_id': 'ownerapi',
-            'code_challenge': code_challenge,
+            'code_challenge': AUTH_CHALLENGE,
             'code_challenge_method': 'S256',
             'redirect_uri': 'https://auth.tesla.com/void/callback',
             'response_type': 'code',
@@ -217,27 +215,31 @@ class TeslaVehicle(Vehicle):
 
         if 'code' in callback_parsed:
             auth_code = callback_parsed['code']
-        elif auth_get['redirect_uri'] + 'code' in callback_parsed:
-            auth_code = callback_parsed[auth_get['redirect_uri'] + 'code']
+        elif auth_get['redirect_uri'] + '?code' in callback_parsed:
+            auth_code = callback_parsed[auth_get['redirect_uri'] + '?code']
         else:
+            print()
+            print('No auth code found in callback')
             return
 
-        outer_request = requests.post('https://auth.tesla.com/oauth2/v3/token', json={
+        outer_response = requests.post('https://auth.tesla.com/oauth2/v3/token', json={
             'grant_type': 'authorization_code',
             'client_id': 'ownerapi',
             'code': auth_code,
-            'code_verifier': code_verifier,
+            'code_verifier': AUTH_VERIFIER,
             'redirect_uri': auth_get['redirect_uri']
         })
 
-        if outer_request.status_code != 200:
+        if outer_response.status_code != 200:
+            print()
+            print('Bad authorization code response')
             return
 
-        outer_parsed = outer_request.json()
+        outer_parsed = outer_response.json()
         outer_token = outer_parsed['access_token']
         self.__refresh_token = outer_parsed['refresh_token']
 
-        inner_request = requests.post('https://owner-api.teslamotors.com/oauth/token', {
+        inner_response = requests.post('https://owner-api.teslamotors.com/oauth/token', {
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET
@@ -245,10 +247,12 @@ class TeslaVehicle(Vehicle):
             'Authorization': 'Bearer ' + outer_token
         })
 
-        if inner_request.status_code != 200:
+        if inner_response.status_code != 200:
+            print()
+            print('Bad access token response')
             return
 
-        inner_parsed = inner_request.json()
+        inner_parsed = inner_response.json()
 
         self.__access_token = inner_parsed['access_token']
 
