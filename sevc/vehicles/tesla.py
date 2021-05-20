@@ -279,7 +279,12 @@ class TeslaVehicle(Vehicle):
             else:
                 print(str(i) + ': ' + vehicle['display_name'] + ' (' + vehicle['model'] + ')')
 
-        vehicle = vehicles[int(input('Please choose your vehicle: ')) - 1]
+        if i == 1:
+            print('Pre-selecting only available vehicle')
+            vehicle = vehicles[0]
+        else:
+            vehicle = vehicles[int(input('Please choose your vehicle: ')) - 1]
+
         self.__vehicle_id = vehicle['id']
 
         if vehicle['display_name'] == '':
