@@ -107,3 +107,5 @@ class TimeOfDayTariff(Tariff):
                 return
 
             last = end
+
+        self.__call__()
