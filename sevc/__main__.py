@@ -111,7 +111,7 @@ if args.new:
         settings.save()
 
     if args.location is not None:
-        location = Location(settings=settings)
+        location = Location(assets=settings.assets)
         settings.assets[location.uuid] = location
         settings.save()
 

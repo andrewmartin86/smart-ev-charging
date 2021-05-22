@@ -1,10 +1,9 @@
 import uuid as py_uuid
-from typing import Optional
+from typing import Dict, Optional
 
 import requests
 
 import sevc
-from sevc.settings import Settings
 from sevc.tariffs import Tariff
 
 
@@ -24,8 +23,7 @@ class Location:
     __south: float = 0
     __west: float = 0
 
-    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None,
-                 settings: Optional[Settings] = None):
+    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None, assets: Optional[dict] = None):
         if array is None:
             array = {}
 
@@ -46,8 +44,8 @@ class Location:
 
         if 'tariff' in array:
             self.tariff = array['tariff']
-        elif settings is not None:
-            self.__obtain_tariff(settings)
+        elif assets is not None:
+            self.__obtain_tariff(assets)
 
         if 'power' in array:
             self.power = float(array['power'])
@@ -70,7 +68,7 @@ class Location:
 
         return self.__name
 
-    def __call__(self, settings: Settings):
+    def __call__(self, assets: dict):
         """Do nothing"""
         return
 
@@ -104,15 +102,27 @@ class Location:
                 self.__south, self.__west, self.__north, self.__east = resource['bbox']
                 return
 
-    def __obtain_tariff(self, settings: Settings) -> None:
+    def __obtain_tariff(self, assets: dict) -> None:
         """Obtain the tariff used at this location"""
 
-        tariff_uuids = settings.uuid_dict(Tariff)
+        tariff_uuids: Dict[int, str] = {}
+        i: int = 0
+
+        for uuid in assets:
+            if not isinstance(assets[uuid], Tariff):
+                continue
+
+            i += 1
+            tariff_uuids[i] = uuid
 
         if len(tariff_uuids) == 1:
             self.tariff = tariff_uuids[1]
-            print('Automatically selected ' + str(settings.assets[self.tariff]))
+            print('Automatically selected ' + str(assets[self.tariff]))
+
         else:
             print()
-            settings.print_list(Tariff)
+
+            for i in tariff_uuids:
+                print(str(i) + '. ' + str(assets[tariff_uuids[i]]))
+
             self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: '))]

@@ -13,7 +13,7 @@ class Settings:
 
     __filename: str = ''
 
-    assets: Dict = {}
+    assets: dict = {}
 
     def __init__(self, filename: str):
         self.__filename = filename
@@ -45,7 +45,7 @@ class Settings:
         """Update everything"""
 
         for uuid in self.assets:
-            self.assets[uuid](self)
+            self.assets[uuid](self.assets)
 
     def __del__(self):
         """Save the settings on object deletion"""

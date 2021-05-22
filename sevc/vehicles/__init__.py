@@ -6,7 +6,6 @@ from dateutil.tz import UTC
 
 import sevc
 from sevc.locations import Location
-from sevc.settings import Settings
 
 
 DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -91,7 +90,7 @@ class Vehicle:
 
         return self.__name
 
-    def __call__(self, settings: Settings):
+    def __call__(self, assets: dict):
         """Run any appropriate actions for the vehicle"""
 
         now = datetime.now(UTC).astimezone()
@@ -115,9 +114,9 @@ class Vehicle:
         location: Optional[Location] = None
 
         if position is not None:
-            for uuid in settings.assets:
-                if isinstance(settings.assets[uuid], Location) and position in settings.assets[uuid]:
-                    location = settings.assets[uuid]
+            for uuid in assets:
+                if isinstance(assets[uuid], Location) and position in assets[uuid]:
+                    location = assets[uuid]
                     break
 
         if location is None:
@@ -135,7 +134,7 @@ class Vehicle:
 
             return
 
-        tariff = settings.assets[location.tariff]
+        tariff = assets[location.tariff]
         charge_time = self.__charge_time(location.power)
 
         if charge_time is None:

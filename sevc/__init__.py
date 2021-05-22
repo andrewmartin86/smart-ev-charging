@@ -24,7 +24,7 @@ def instantiate_subclass(parent: type):
     """Choose and instantiate a subclass"""
 
     print()
-    classes: Dict = {}
+    classes: dict = {}
     names: Dict[int, str] = {}
     i: int = 0
 

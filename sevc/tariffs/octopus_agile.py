@@ -6,7 +6,6 @@ from dateutil.parser import isoparse
 from dateutil.tz import UTC
 from requests.auth import HTTPBasicAuth
 
-from sevc.settings import Settings
 from sevc.tariffs import Tariff
 
 
@@ -31,7 +30,7 @@ class OctopusAgileTariff(Tariff):
         if self.__api_endpoint is None or self.__api_key is None:
             self.__obtain_api_details()
 
-    def call(self, settings: Settings):
+    def call(self, assets: dict):
         """Update the rates from the API"""
 
         now = datetime.now(UTC).astimezone()

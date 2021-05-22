@@ -5,7 +5,6 @@ from typing import Dict, List, Optional, Union
 from dateutil.tz import UTC
 
 import sevc
-from sevc.settings import Settings
 
 
 class Tariff:
@@ -63,7 +62,7 @@ class Tariff:
 
         return self.__name
 
-    def __call__(self, settings: Settings):
+    def __call__(self, assets: dict):
         """Update the tariff rates"""
         pass
 
