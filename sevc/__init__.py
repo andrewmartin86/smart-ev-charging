@@ -24,8 +24,9 @@ def instantiate_subclass(parent: type):
     """Choose and instantiate a subclass"""
 
     print()
-    classes = []
-    i = 0
+    classes: Dict = {}
+    names: Dict[int, str] = {}
+    i: int = 0
 
     for importer, modname, ispkg in pkgutil.iter_modules([os.path.dirname(inspect.getfile(parent))]):
         module = importer.find_spec(modname).loader.load_module(modname)
@@ -33,15 +34,18 @@ def instantiate_subclass(parent: type):
 
         for name, obj in members:
             i += 1
-            print(str(i) + ': ' + friendly_class_name(obj))
+            names[i] = friendly_class_name(obj)
+            classes[i] = [module, name]
 
-            classes.append([module, name])
-
-    if i == 1:
-        print('Pre-selected only available ' + parent.__name__.lower() + ' type')
-        class_def = classes[0]
+    if len(classes) == 1:
+        class_def = classes[1]
+        print('Automatically selected ' + names[1])
     else:
-        class_def = classes[int(input('Please choose a ' + parent.__name__.lower() + ' type: ')) - 1]
+        print()
+        for i in names:
+            print(str(i) + ': ' + names[i])
+
+        class_def = classes[int(input('Please choose a ' + parent.__name__.lower() + ' type: '))]
 
     subclass = getattr(*class_def)
     return subclass()
@@ -80,16 +84,25 @@ def object_from_dict(array: dict, uuid: Optional[str] = None):
     return cls(array, uuid=uuid)
 
 
-def print_list(array: Dict, ids: Optional[List[int]] = None) -> Dict[int, str]:
-    """Display a list and return a dictionary of UUIDs"""
+def print_list(array: Dict, ids: Optional[List[int]] = None) -> None:
+    """Display a list"""
 
-    rtn = {}
-    i = 0
+    i: int = 0
 
     for uuid in array:
         i += 1
-        rtn[i] = uuid
         if ids is None or len(ids) == 0 or i in ids:
             print(str(i) + '. ' + array[uuid].name)
 
-    return rtn
+
+def uuid_dict(array: Dict) -> Dict[int, str]:
+    """Create a dictionary of UUIDs"""
+
+    uuids: Dict[int, str] = {}
+    i: int = 0
+
+    for uuid in array:
+        i += 1
+        uuids[i] = uuid
+
+    return uuids

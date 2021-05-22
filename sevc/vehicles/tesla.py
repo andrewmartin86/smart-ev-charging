@@ -1,6 +1,6 @@
 import time
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import Dict, List, Optional
 from urllib.parse import parse_qs, urlencode
 
 import requests
@@ -255,40 +255,47 @@ class TeslaVehicle(Vehicle):
     def __obtain_vehicle_id(self) -> None:
         """Obtain the vehicle ID"""
 
-        vehicles = self.__api_request('vehicles', vehicle_specific=False)
+        vehicles: List[Dict[str, str]] = self.__api_request('vehicles', vehicle_specific=False)
 
         if vehicles is None:
             return
 
-        i: int = 0
-        print()
-
-        for vehicle in vehicles:
-            i += 1
+        if len(vehicles) == 1:
+            vehicle: Dict[str, str] = vehicles[0]
 
             # The model ID is buried amongst the option codes
-            vehicle['options'] = vehicle['option_codes'].split(',')
-            vehicle['model'] = match_option(vehicle['options'], MODEL_CODES, 'Model S')
+            model: str = match_option(vehicle['option_codes'].split(','), MODEL_CODES, 'Model S')
 
             if vehicle['display_name'] == '':
-                print(str(i) + ': ' + vehicle['model'])
+                print('Automatically selected ' + model)
             else:
-                print(str(i) + ': ' + vehicle['display_name'] + ' (' + vehicle['model'] + ')')
+                print('Automatically selected ' + vehicle['display_name'] + ' (' + model + ')')
 
-        if i == 1:
-            print('Pre-selecting only available vehicle')
-            vehicle = vehicles[0]
         else:
+            i: int = 0
+            print()
+
+            for vehicle in vehicles:
+                i += 1
+
+                # The model ID is buried amongst the option codes
+                model: str = match_option(vehicle['option_codes'].split(','), MODEL_CODES, 'Model S')
+
+                if vehicle['display_name'] == '':
+                    print(str(i) + ': ' + model)
+                else:
+                    print(str(i) + ': ' + vehicle['display_name'] + ' (' + model + ')')
+
             vehicle = vehicles[int(input('Please choose your vehicle: ')) - 1]
 
         self.__vehicle_id = vehicle['id']
 
         if vehicle['display_name'] == '':
-            self._default_name = vehicle['model']
+            self._default_name = match_option(vehicle['option_codes'].split(','), MODEL_CODES, 'Model S')
         else:
             self._default_name = vehicle['display_name']
 
-        self._default_battery = float(match_option(vehicle['options'], BATTERY_CODES, 0))
+        self._default_battery = float(match_option(vehicle['option_codes'].split(','), BATTERY_CODES, 0))
 
         if self._default_battery == 0:
             self._default_battery = None

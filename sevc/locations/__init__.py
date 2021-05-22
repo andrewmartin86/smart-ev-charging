@@ -98,11 +98,12 @@ class Location:
                 return
 
     def __obtain_tariff(self, tariffs: Dict[str, Tariff]) -> None:
-        print()
-        tariff_uuids = sevc.print_list(tariffs)
+        tariff_uuids = sevc.uuid_dict(tariffs)
 
         if len(tariff_uuids) == 1:
-            print('Pre-selecting only available tariff')
             self.tariff = tariff_uuids[1]
+            print('Automatically selected ' + tariffs[self.tariff].name)
         else:
+            print()
+            sevc.print_list(tariffs)
             self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: '))]
