@@ -83,4 +83,3 @@ class OctopusAgileTariff(Tariff):
         print('Please log into your Octopus account then go to https://octopus.energy/dashboard/developer/')
         self.__api_endpoint = input('From Unit Rates, enter the URL: ')
         self.__api_key = input('From Authentication, enter the API key: ')
-        self.__call__()

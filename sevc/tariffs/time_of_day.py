@@ -35,7 +35,10 @@ class TimeOfDayTariff(Tariff):
         if self._next_update is not None and self._next_update > now:
             return
 
-        next_day = self._rates[-1]['end']
+        next_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        if len(self._rates) > 0:
+            next_day = self._rates[-1]['end']
 
         for rate in self.__time_rates:
             new_rate = {
@@ -107,5 +110,3 @@ class TimeOfDayTariff(Tariff):
                 return
 
             last = end
-
-        self.__call__()

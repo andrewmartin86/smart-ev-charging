@@ -129,7 +129,8 @@ if args.delete:
                 deleting = True
                 for loc in settings.locations:
                     if settings.locations[loc].tariff == uuid:
-                        print('Cannot delete ' + settings.tariffs[uuid].name)
+                        print('Cannot delete ' + settings.tariffs[uuid].name + ' while it is being used at '
+                              + settings.locations[loc].name)
                         deleting = False
                         break
                 if deleting:
