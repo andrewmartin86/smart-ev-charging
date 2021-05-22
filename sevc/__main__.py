@@ -1,13 +1,12 @@
 import argparse
 import os
-import sevc
 import sys
 
+import sevc
 from sevc.locations import Location
 from sevc.settings import Settings
 from sevc.tariffs import Tariff
 from sevc.vehicles import Vehicle
-
 
 arg_parser = argparse.ArgumentParser(description='Optimise electric vehicle charging to cheapest rates')
 
@@ -165,4 +164,3 @@ if args.new:
 
     settings.save()
     sys.exit(0)
-

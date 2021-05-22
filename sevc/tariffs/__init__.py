@@ -1,14 +1,10 @@
-import sevc
 import uuid as py_uuid
-
-from datetime import datetime
-from datetime import timedelta
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Union
 
 from dateutil.tz import UTC
+
+import sevc
 
 
 class Tariff:

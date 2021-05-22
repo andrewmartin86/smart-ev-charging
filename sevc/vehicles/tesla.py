@@ -1,17 +1,13 @@
-import base64
-import requests
-import sevc.vehicles
 import time
+from datetime import datetime, timedelta
+from typing import List, Optional
+from urllib.parse import parse_qs, urlencode
 
-from datetime import datetime
-from datetime import timedelta
-from sevc.vehicles import Vehicle
-from typing import List
-from typing import Optional
-
+import requests
 from dateutil.tz import UTC
-from urllib.parse import parse_qs
-from urllib.parse import urlencode
+
+import sevc
+from sevc.vehicles import Vehicle
 
 
 CLIENT_ID = '81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384'

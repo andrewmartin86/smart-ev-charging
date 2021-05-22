@@ -1,13 +1,9 @@
-from datetime import datetime
-from datetime import time
-from datetime import timedelta
-from sevc.tariffs import Tariff
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
+from datetime import datetime, time, timedelta
+from typing import Dict, List, Optional, Union
 
 from dateutil.tz import UTC
+
+from sevc.tariffs import Tariff
 
 
 class TimeOfDayTariff(Tariff):

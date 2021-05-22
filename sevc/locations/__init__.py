@@ -1,11 +1,10 @@
-import requests
-import sevc
 import uuid as py_uuid
+from typing import Dict, List, Optional
 
+import requests
+
+import sevc
 from sevc.tariffs import Tariff
-from typing import Dict
-from typing import List
-from typing import Optional
 
 
 API_KEY = 'Av73UhSnMiyn0ikU68pvish4BGguc_C5RnatjNg4DQSUhEuv8XqojS6Axojv3LjH'
@@ -113,4 +112,3 @@ class Location:
             self.tariff = tariff_uuids[0]
         else:
             self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: ')) - 1]
-

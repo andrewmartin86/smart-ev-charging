@@ -1,13 +1,12 @@
-import dateutil.parser
-import requests
-
-from datetime import datetime
-from datetime import timedelta
-from requests.auth import HTTPBasicAuth
-from sevc.tariffs import Tariff
+from datetime import datetime, timedelta
 from typing import Optional
 
+import requests
+from dateutil.parser import isoparse
 from dateutil.tz import UTC
+from requests.auth import HTTPBasicAuth
+
+from sevc.tariffs import Tariff
 
 
 class OctopusAgileTariff(Tariff):
@@ -48,8 +47,8 @@ class OctopusAgileTariff(Tariff):
 
         for result in parsed['results']:
             self._rates.append({
-                'start': dateutil.parser.isoparse(result['valid_from']).astimezone(),
-                'end': dateutil.parser.isoparse(result['valid_to']).astimezone(),
+                'start': isoparse(result['valid_from']).astimezone(),
+                'end': isoparse(result['valid_to']).astimezone(),
                 'rate': float(result['value_inc_vat'])
             })
 

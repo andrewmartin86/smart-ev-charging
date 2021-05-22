@@ -1,16 +1,12 @@
-import sevc
 import uuid as py_uuid
-
-from datetime import datetime
-from datetime import time
-from datetime import timedelta
-from sevc.locations import Location
-from sevc.tariffs import Tariff
-from typing import Dict
-from typing import List
-from typing import Optional
+from datetime import datetime, time, timedelta
+from typing import Dict, List, Optional
 
 from dateutil.tz import UTC
+
+import sevc
+from sevc.locations import Location
+from sevc.tariffs import Tariff
 
 
 DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']

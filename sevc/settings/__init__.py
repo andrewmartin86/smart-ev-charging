@@ -1,12 +1,11 @@
 import json
-import sevc.tariffs
-import sevc.vehicles
-
 from json import JSONDecodeError
+from typing import Dict
+
+import sevc
 from sevc.locations import Location
 from sevc.tariffs import Tariff
 from sevc.vehicles import Vehicle
-from typing import Dict
 
 
 class Settings:

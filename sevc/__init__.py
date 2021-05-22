@@ -1,9 +1,8 @@
 import importlib
 import inspect
-import os.path
+import os
 import pkgutil
 import re
-
 from typing import Optional
 
 
