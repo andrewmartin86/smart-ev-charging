@@ -159,14 +159,16 @@ if args.new:
     if args.tariff is not None:
         tariff = sevc.instantiate_subclass(Tariff)
         settings.tariffs[tariff.uuid] = tariff
+        settings.save()
 
     if args.location is not None:
-        location = sevc.instantiate_subclass(Location)
+        location = Location(tariffs=settings.tariffs)
         settings.locations[location.uuid] = location
+        settings.save()
 
     if args.vehicle is not None:
         vehicle = sevc.instantiate_subclass(Vehicle)
         settings.vehicles[vehicle.uuid] = vehicle
+        settings.save()
 
-    settings.save()
     sys.exit(0)
