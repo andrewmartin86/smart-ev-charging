@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Union
 
 from dateutil.tz import UTC
 
+from sevc.settings import Settings
 from sevc.tariffs import Tariff
 
 
@@ -27,7 +28,7 @@ class TimeOfDayTariff(Tariff):
         else:
             self.__obtain_time_rates()
 
-    def update(self):
+    def __call__(self, settings: Settings):
         """Refresh the rates"""
 
         now = datetime.now(UTC).astimezone()

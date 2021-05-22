@@ -58,28 +58,23 @@ if not os.path.isdir(base_dir + '/var'):
 settings = Settings(base_dir + '/var/sevc.json')
 
 if not action_defined:
-    for uuid in settings.tariffs:
-        settings.tariffs[uuid].update()
-
-    for uuid in settings.vehicles:
-        settings.vehicles[uuid].run(settings.locations, settings.tariffs)
-
+    settings()
     sys.exit(0)
 
 if args.list:
     if args.location is not None or not asset_defined:
         print('LOCATIONS')
-        sevc.print_list(settings.locations, args.location)
+        settings.print_list(Location, args.location)
         print()
 
     if args.tariff is not None or not asset_defined:
         print('TARIFFS')
-        sevc.print_list(settings.tariffs, args.tariff)
+        settings.print_list(Tariff, args.tariff)
         print()
 
     if args.vehicle is not None or not asset_defined:
         print('VEHICLES')
-        sevc.print_list(settings.vehicles, args.vehicle)
+        settings.print_list(Vehicle, args.vehicles)
         print()
 
     sys.exit(0)
@@ -93,17 +88,17 @@ if args.delete:
 
     if args.location is not None:
         print('DELETING LOCATIONS')
-        sevc.delete_assets(settings.locations, args.location)
+        settings.delete_assets(Location, args.location)
         print()
 
     if args.tariff is not None:
         print('DELETING TARIFFS')
-        sevc.delete_assets(settings.tariffs, args.tariff)
+        settings.delete_assets(Tariff, args.tariff)
         print()
 
     if args.vehicle is not None:
         print('DELETING VEHICLES')
-        sevc.delete_assets(settings.vehicles, args.vehicle)
+        settings.delete_assets(Vehicle, args.vehicle)
         print()
 
     settings.save()
@@ -112,17 +107,17 @@ if args.delete:
 if args.new:
     if args.tariff is not None:
         tariff = sevc.instantiate_subclass(Tariff)
-        settings.tariffs[tariff.uuid] = tariff
+        settings.assets[tariff.uuid] = tariff
         settings.save()
 
     if args.location is not None:
-        location = Location(tariffs=settings.tariffs)
-        settings.locations[location.uuid] = location
+        location = Location(settings=settings)
+        settings.assets[location.uuid] = location
         settings.save()
 
     if args.vehicle is not None:
         vehicle = sevc.instantiate_subclass(Vehicle)
-        settings.vehicles[vehicle.uuid] = vehicle
+        settings.assets[vehicle.uuid] = vehicle
         settings.save()
 
     sys.exit(0)

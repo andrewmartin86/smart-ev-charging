@@ -87,7 +87,7 @@ class Vehicle:
         if 'status' in array:
             self.__status = int(array['status'])
 
-    def run(self, locations: Dict[str, Location], tariffs: Dict[str, Tariff]):
+    def __call__(self, settings: Settings):
         """Run any appropriate actions for the vehicle"""
 
         now = datetime.now(UTC).astimezone()
@@ -111,9 +111,9 @@ class Vehicle:
         location: Optional[Location] = None
 
         if position is not None:
-            for uuid in locations:
-                if position in locations[uuid]:
-                    location = locations[uuid]
+            for uuid in settings.assets:
+                if isinstance(settings.assets[uuid], Location) and position in settings.assets[uuid]:
+                    location = settings.assets[uuid]
                     break
 
         if location is None:
@@ -131,7 +131,7 @@ class Vehicle:
 
             return
 
-        tariff = tariffs[location.tariff]
+        tariff = settings.assets[location.tariff]
         charge_time = self.__charge_time(location.power)
 
         if charge_time is None:
@@ -161,10 +161,6 @@ class Vehicle:
             self.__next_ping = start_time - timedelta(minutes=10)
 
         self.__status = WAITING
-
-    def delete_allowed(self, settings: Settings) -> bool:
-        """Check if this vehicle can be deleted"""
-        return True
 
     def _charge_requirement(self) -> Optional[float]:
         """Calculate how much charge is required"""

@@ -25,7 +25,7 @@ class Location:
     __west: float = 0
 
     def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None,
-                 tariffs: Optional[Dict[str, Tariff]] = None):
+                 settings: Optional[Settings] = None):
         if array is None:
             array = {}
 
@@ -50,7 +50,7 @@ class Location:
         if 'tariff' in array:
             self.tariff = array['tariff']
         else:
-            self.__obtain_tariff(tariffs)
+            self.__obtain_tariff(settings)
 
         if 'power' in array:
             self.power = float(array['power'])
@@ -68,9 +68,9 @@ class Location:
         return self.__south <= lat <= self.__north\
             and (self.__west <= long <= self.__east) == (self.__east > self.__west)
 
-    def delete_allowed(self, settings: Settings) -> bool:
-        """Check if this location can be deleted"""
-        return True
+    def __call__(self, settings: Settings):
+        """Do nothing"""
+        return
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
@@ -102,13 +102,15 @@ class Location:
                 self.__south, self.__west, self.__north, self.__east = resource['bbox']
                 return
 
-    def __obtain_tariff(self, tariffs: Dict[str, Tariff]) -> None:
-        tariff_uuids = sevc.uuid_dict(tariffs)
+    def __obtain_tariff(self, settings: Settings) -> None:
+        """Obtain the tariff used at this location"""
+
+        tariff_uuids = settings.uuid_dict(Tariff)
 
         if len(tariff_uuids) == 1:
             self.tariff = tariff_uuids[1]
-            print('Automatically selected ' + tariffs[self.tariff].name)
+            print('Automatically selected ' + settings.assets[self.tariff].name)
         else:
             print()
-            sevc.print_list(tariffs)
+            settings.print_list(Tariff)
             self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: '))]

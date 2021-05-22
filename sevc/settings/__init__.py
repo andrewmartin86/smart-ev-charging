@@ -1,6 +1,6 @@
 import json
 from json import JSONDecodeError
-from typing import Dict
+from typing import Dict, List, Optional
 
 import sevc
 from sevc.locations import Location
@@ -13,9 +13,7 @@ class Settings:
 
     __filename: str = ''
 
-    locations: Dict[str, Location] = {}
-    tariffs: Dict[str, Tariff] = {}
-    vehicles: Dict[str, Vehicle] = {}
+    assets: Dict = {}
 
     def __init__(self, filename: str):
         self.__filename = filename
@@ -33,18 +31,46 @@ class Settings:
 
         if 'tariffs' in parsed:
             for uuid in parsed['tariffs']:
-                self.tariffs[uuid] = sevc.object_from_dict(parsed['tariffs'][uuid], uuid)
+                self.assets[uuid] = sevc.object_from_dict(parsed['tariffs'][uuid], uuid)
 
         if 'locations' in parsed:
             for uuid in parsed['locations']:
-                self.locations[uuid] = Location(parsed['locations'][uuid], uuid)
+                self.assets[uuid] = Location(parsed['locations'][uuid], uuid)
 
         if 'vehicles' in parsed:
             for uuid in parsed['vehicles']:
-                self.vehicles[uuid] = sevc.object_from_dict(parsed['vehicles'][uuid], uuid)
+                self.assets[uuid] = sevc.object_from_dict(parsed['vehicles'][uuid], uuid)
+
+    def __call__(self):
+        """Update everything"""
+
+        for uuid in self.assets:
+            self.assets[uuid](self)
 
     def __del__(self):
+        """Save the settings on object deletion"""
+
         self.save()
+
+    def delete_assets(self, asset_type: type, ids: List[int]) -> None:
+        """Delete assets"""
+
+        to_delete = list(self.uuid_dict(asset_type, ids).values())
+
+        if asset_type == Tariff:
+            for loc in self.assets:
+                if not isinstance(self.assets[loc], Location):
+                    continue
+
+                if self.assets[loc].tariff in to_delete:
+                    print('Cannot delete ' + self.assets[self.assets[loc].tariff].name + ' while it is being used in '
+                          + self.assets[loc].name)
+
+                    to_delete.remove(self.assets[loc].tariff)
+
+        for uuid in to_delete:
+            print('Deleting ' + self.assets[uuid].name)
+            self.assets.pop(uuid)
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
@@ -54,17 +80,24 @@ class Settings:
             'tariffs': {},
             'vehicles': {}
         }
-        
-        for uuid in self.locations:
-            rtn['locations'][uuid] = self.locations[uuid].dict()
 
-        for uuid in self.tariffs:
-            rtn['tariffs'][uuid] = self.tariffs[uuid].dict()
-
-        for uuid in self.vehicles:
-            rtn['vehicles'][uuid] = self.vehicles[uuid].dict()
+        for uuid in self.assets:
+            if isinstance(self.assets[uuid], Location):
+                rtn['locations'][uuid] = self.assets[uuid].dict()
+            elif isinstance(self.assets[uuid], Tariff):
+                rtn['tariffs'][uuid] = self.assets[uuid].dict()
+            elif isinstance(self.assets[uuid], Vehicle):
+                rtn['vehicles'][uuid] = self.assets[uuid].dict()
 
         return rtn
+
+    def print_list(self, asset_type: type, ids: Optional[List[int]] = None) -> None:
+        """Display a list of assets"""
+
+        uuids = self.uuid_dict(asset_type, ids)
+
+        for i in uuids:
+            print(str(i) + '. ' + self.assets[uuids[i]].name)
 
     def save(self) -> None:
         """Save the settings to the file"""
@@ -72,3 +105,20 @@ class Settings:
         file = open(self.__filename, 'w')
         json.dump(self.dict(), file, separators=(',', ':'))
         file.close()
+
+    def uuid_dict(self, asset_type: type, ids: Optional[List[int]] = None) -> Dict[int, str]:
+        """Create a dictionary of asset UUIDs"""
+
+        uuids: Dict[int, str] = {}
+        i: int = 0
+
+        for uuid in self.assets:
+            if not isinstance(self.assets[uuid], asset_type):
+                continue
+
+            i += 1
+
+            if ids is None or len(ids) == 0 or i in ids:
+                uuids[i] = uuid
+
+        return uuids
