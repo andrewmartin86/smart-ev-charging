@@ -15,7 +15,6 @@ class OctopusAgileTariff(Tariff):
 
     __api_endpoint: Optional[str] = None
     __api_key: Optional[str] = None
-    __api_next_update: Optional[datetime] = None
 
     def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
         if array is None:
@@ -32,17 +31,12 @@ class OctopusAgileTariff(Tariff):
         if self.__api_endpoint is None or self.__api_key is None:
             self.__obtain_api_details()
 
-        if 'api_next_update' in array:
-            self.__api_next_update = datetime.fromisoformat(array['api_next_update']).astimezone()
-        else:
-            self.__api_next_update = datetime.now(UTC).astimezone()
-
     def __call__(self):
         """Update the rates from the API"""
 
         now = datetime.now(UTC).astimezone()
 
-        if self.__api_next_update is not None and self.__api_next_update > now:
+        if self._next_update is not None and self._next_update > now:
             return
 
         request = requests.get(self.__api_endpoint, auth=HTTPBasicAuth(self.__api_key, ''))
@@ -62,15 +56,15 @@ class OctopusAgileTariff(Tariff):
         self._clear_rates()
 
         # Updates are normally done by 4pm, so try an hour earlier
-        self.__api_next_update = now.replace(hour=15, minute=0, second=0)
+        self._next_update = now.replace(hour=15, minute=0, second=0)
 
-        if self.__api_next_update <= now:
+        if self._next_update <= now:
             # Today's update has already happened: wait until tomorrow
-            self.__api_next_update += timedelta(days=1)
+            self._next_update += timedelta(days=1)
 
-        if self.__api_next_update > self._rates[-1]['end']:
+        if self._next_update > self._rates[-1]['end']:
             # Next update is after the last rate, so do one in an hour's time
-            self.__api_next_update = now.replace(minute=0, second=0) + timedelta(hours=1)
+            self._next_update = now.replace(minute=0, second=0) + timedelta(hours=1)
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
@@ -79,8 +73,7 @@ class OctopusAgileTariff(Tariff):
             **super().dict(),
             **{
                 'api_endpoint': self.__api_endpoint,
-                'api_key': self.__api_key,
-                'api_next_update': self.__api_next_update.astimezone().replace(second=0, microsecond=0).isoformat()
+                'api_key': self.__api_key
             }
         }
 

@@ -18,6 +18,7 @@ class Tariff:
     name: str = ''
 
     _rates: List[Dict[str, Union[datetime, float]]] = []
+    _next_update: Optional[datetime] = None
 
     __module: str = ''
     __class: str = ''
@@ -46,6 +47,11 @@ class Tariff:
         else:
             self.name = sevc.name_object(self.__class__)
 
+        if 'next_update' in array:
+            self._next_update = datetime.fromisoformat(array['next_update']).astimezone()
+        else:
+            self._next_update = datetime.now(UTC).astimezone()
+
         self._rates = []
         if 'rates' in array:
             for rate in array['rates']:
@@ -65,6 +71,7 @@ class Tariff:
             'module': self.__module,
             'class': self.__class,
             'name': self.name,
+            'next_update': self._next_update.astimezone().replace(second=0, microsecond=0).isoformat(),
             'rates': []
         }
 
