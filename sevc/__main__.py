@@ -92,50 +92,18 @@ if args.delete:
         sys.exit(2)
 
     if args.location is not None:
-        i = 0
-        to_delete = []
-        print('Deleting locations...')
-        for uuid in settings.locations:
-            i += 1
-            if i in args.location:
-                print(settings.locations[uuid].name)
-                to_delete.append(uuid)
-        for uuid in to_delete:
-            settings.locations.pop(uuid)
+        print('DELETING LOCATIONS')
+        sevc.delete_assets(settings.locations, args.location)
         print()
 
     if args.tariff is not None:
-        i = 0
-        to_delete = []
-        print('Deleting tariffs...')
-        for uuid in settings.tariffs:
-            i += 1
-            if i in args.tariff:
-                deleting = True
-                for loc in settings.locations:
-                    if settings.locations[loc].tariff == uuid:
-                        print('Cannot delete ' + settings.tariffs[uuid].name + ' while it is being used at '
-                              + settings.locations[loc].name)
-                        deleting = False
-                        break
-                if deleting:
-                    print(settings.tariffs[uuid].name)
-                    to_delete.append(uuid)
-        for uuid in to_delete:
-            settings.tariffs.pop(uuid)
+        print('DELETING TARIFFS')
+        sevc.delete_assets(settings.tariffs, args.tariff)
         print()
 
     if args.vehicle is not None:
-        i = 0
-        to_delete = []
-        print('Deleting vehicles...')
-        for uuid in settings.vehicles:
-            i += 1
-            if i in args.vehicle:
-                print(settings.vehicles[uuid].name)
-                to_delete.append(uuid)
-        for uuid in to_delete:
-            settings.vehicles.pop(uuid)
+        print('DELETING VEHICLES')
+        sevc.delete_assets(settings.vehicles, args.vehicle)
         print()
 
     settings.save()

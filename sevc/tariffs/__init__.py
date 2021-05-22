@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Union
 from dateutil.tz import UTC
 
 import sevc
+from sevc.settings import Settings
 
 
 class Tariff:
@@ -60,6 +61,15 @@ class Tariff:
     def update(self):
         """Update the tariff rates"""
         pass
+
+    def delete_allowed(self, settings: Settings) -> bool:
+        """Check if this tariff can be deleted"""
+        for uuid in settings.locations:
+            if settings.locations[uuid].tariff == self.uuid:
+                print('Cannot delete ' + self.name + ' while it is being used in ' + settings.locations[uuid].name)
+                return False
+
+        return True
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""

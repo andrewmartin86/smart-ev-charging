@@ -4,6 +4,7 @@ from typing import Dict, Optional
 import requests
 
 import sevc
+from sevc.settings import Settings
 from sevc.tariffs import Tariff
 
 
@@ -66,6 +67,10 @@ class Location:
 
         return self.__south <= lat <= self.__north\
             and (self.__west <= long <= self.__east) == (self.__east > self.__west)
+
+    def delete_allowed(self, settings: Settings) -> bool:
+        """Check if this location can be deleted"""
+        return True
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""

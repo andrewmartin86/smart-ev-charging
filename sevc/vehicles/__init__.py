@@ -6,6 +6,7 @@ from dateutil.tz import UTC
 
 import sevc
 from sevc.locations import Location
+from sevc.settings import Settings
 from sevc.tariffs import Tariff
 
 
@@ -160,6 +161,10 @@ class Vehicle:
             self.__next_ping = start_time - timedelta(minutes=10)
 
         self.__status = WAITING
+
+    def delete_allowed(self, settings: Settings) -> bool:
+        """Check if this vehicle can be deleted"""
+        return True
 
     def _charge_requirement(self) -> Optional[float]:
         """Calculate how much charge is required"""
