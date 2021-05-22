@@ -3,7 +3,7 @@ import inspect
 import os
 import pkgutil
 import re
-from typing import Optional
+from typing import Dict, List, Optional
 
 
 def friendly_class_name(cls: type):
@@ -78,3 +78,18 @@ def object_from_dict(array: dict, uuid: Optional[str] = None):
 
     cls = getattr(importlib.import_module(array['module']), array['class'])
     return cls(array, uuid=uuid)
+
+
+def print_list(array: Dict, ids: Optional[List[int]] = None) -> Dict[int, str]:
+    """Display a list and return a dictionary of UUIDs"""
+
+    rtn = {}
+    i = 0
+
+    for uuid in array:
+        i += 1
+        rtn[i] = uuid
+        if ids is None or len(ids) == 0 or i in ids:
+            print(str(i) + '. ' + array[uuid].name)
+
+    return rtn

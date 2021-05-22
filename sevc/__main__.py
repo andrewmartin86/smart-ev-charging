@@ -69,32 +69,17 @@ if not action_defined:
 if args.list:
     if args.location is not None or not asset_defined:
         print('LOCATIONS')
-        i = 0
-        for uuid in settings.locations:
-            i += 1
-            if args.location is not None and len(args.location) > 0 and i not in args.location:
-                continue
-            print(str(i) + ': ' + settings.locations[uuid].name)
+        sevc.print_list(settings.locations, args.location)
         print()
 
     if args.tariff is not None or not asset_defined:
         print('TARIFFS')
-        i = 0
-        for uuid in settings.tariffs:
-            i += 1
-            if args.tariff is not None and len(args.tariff) > 0 and i not in args.tariff:
-                continue
-            print(str(i) + ': ' + settings.tariffs[uuid].name)
+        sevc.print_list(settings.tariffs, args.tariff)
         print()
 
     if args.vehicle is not None or not asset_defined:
         print('VEHICLES')
-        i = 0
-        for uuid in settings.vehicles:
-            i += 1
-            if args.vehicle is not None and len(args.vehicle) > 0 and i not in args.vehicle:
-                continue
-            print(str(i) + ': ' + settings.vehicles[uuid].name)
+        sevc.print_list(settings.vehicles, args.vehicle)
         print()
 
     sys.exit(0)

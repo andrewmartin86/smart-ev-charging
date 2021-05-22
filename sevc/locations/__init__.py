@@ -1,5 +1,5 @@
 import uuid as py_uuid
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 import requests
 
@@ -99,16 +99,10 @@ class Location:
 
     def __obtain_tariff(self, tariffs: Dict[str, Tariff]) -> None:
         print()
-        tariff_uuids: List[str] = []
-        t: int = 0
+        tariff_uuids = sevc.print_list(tariffs)
 
-        for tariff_uuid in tariffs:
-            tariff_uuids.append(tariff_uuid)
-            t += 1
-            print(str(t) + ': ' + tariffs[tariff_uuid].name)
-
-        if t == 1:
+        if len(tariff_uuids) == 1:
             print('Pre-selecting only available tariff')
-            self.tariff = tariff_uuids[0]
+            self.tariff = tariff_uuids[1]
         else:
-            self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: ')) - 1]
+            self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: '))]
