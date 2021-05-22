@@ -100,24 +100,28 @@ if args.list:
     sys.exit(0)
 
 if args.delete:
+    if (args.location is not None and len(args.location) == 0)\
+            or (args.tariff is not None and len(args.tariff) == 0)\
+            or (args.vehicle is not None and len(args.vehicle) == 0):
+        print('Missing IDs')
+        sys.exit(2)
+
     if args.location is not None:
-        if len(args.location) == 0:
-            print('Missing locations')
-            sys.exit(2)
         i = 0
+        to_delete = []
         print('Deleting locations...')
         for uuid in settings.locations:
             i += 1
             if i in args.location:
                 print(settings.locations[uuid].name)
-                settings.locations.pop(uuid)
+                to_delete.append(uuid)
+        for uuid in to_delete:
+            settings.locations.pop(uuid)
         print()
 
     if args.tariff is not None:
-        if len(args.tariff) == 0:
-            print('Missing tariffs')
-            sys.exit(2)
         i = 0
+        to_delete = []
         print('Deleting tariffs...')
         for uuid in settings.tariffs:
             i += 1
@@ -130,20 +134,22 @@ if args.delete:
                         break
                 if deleting:
                     print(settings.tariffs[uuid].name)
-                    settings.tariffs.pop(uuid)
+                    to_delete.append(uuid)
+        for uuid in to_delete:
+            settings.tariffs.pop(uuid)
         print()
 
     if args.vehicle is not None:
-        if len(args.vehicle) == 0:
-            print('Missing vehicles')
-            sys.exit(2)
         i = 0
+        to_delete = []
         print('Deleting vehicles...')
         for uuid in settings.vehicles:
             i += 1
             if i in args.vehicle:
                 print(settings.vehicles[uuid].name)
-                settings.vehicles.pop(uuid)
+                to_delete.append(uuid)
+        for uuid in to_delete:
+            settings.vehicles.pop(uuid)
         print()
 
     settings.save()
