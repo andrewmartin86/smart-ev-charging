@@ -15,8 +15,6 @@ class Tariff:
     _rates: List[Dict[str, Union[datetime, float]]] = []
     _next_update: Optional[datetime] = None
 
-    __module: str = ''
-    __class: str = ''
     __name: str = ''
 
     def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
@@ -27,16 +25,6 @@ class Tariff:
             self.uuid = str(py_uuid.uuid1())
         else:
             self.uuid = uuid
-
-        if 'module' in array:
-            self.__module = array['module']
-        else:
-            self.__module = 'sevc.tariffs.' + self.__class__.__module__
-
-        if 'class' in array:
-            self.__class = array['class']
-        else:
-            self.__class = self.__class__.__name__
 
         if 'name' in array:
             self.__name = array['name']
@@ -70,8 +58,8 @@ class Tariff:
         """Output the object as a dictionary"""
 
         rtn = {
-            'module': self.__module,
-            'class': self.__class,
+            'module': self.__class__.__module__,
+            'class': self.__class__.__name__,
             'name': self.__name,
             'next_update': self._next_update.astimezone().replace(second=0, microsecond=0).isoformat(),
             'rates': []

@@ -35,8 +35,6 @@ class Vehicle:
     _default_name: Optional[str] = None
     _default_battery: Optional[float] = None
 
-    __module: str = ''
-    __class: str = ''
     __name: str = ''
     __next_ping: Optional[datetime] = None
     __status: int = UNRESPONSIVE
@@ -50,16 +48,6 @@ class Vehicle:
             self.uuid = str(py_uuid.uuid1())
         else:
             self.uuid = uuid
-
-        if 'module' in array:
-            self.__module = array['module']
-        else:
-            self.__module = 'sevc.vehicles.' + self.__class__.__module__
-
-        if 'class' in array:
-            self.__class = array['class']
-        else:
-            self.__class = self.__class__.__name__
 
         if 'name' in array:
             self.__name = array['name']
@@ -189,8 +177,8 @@ class Vehicle:
         """Output the object as a dictionary"""
 
         rtn = {
-            'module': self.__module,
-            'class': self.__class,
+            'module': self.__class__.__module__,
+            'class': self.__class__.__name__,
             'name': self.__name,
             'battery': self._battery,
             'next_ping': self.__next_ping.astimezone().replace(second=0, microsecond=0).isoformat(),
