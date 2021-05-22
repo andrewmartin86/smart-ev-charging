@@ -54,7 +54,7 @@ class TimeOfDayTariff(Tariff):
             if rate['end'].hour == 0 and rate['end'].minute == 0 and rate['end'].second == 0:
                 new_rate['end'] += timedelta(days=1)
             else:
-                new_rate['end'].replace(
+                new_rate['end'] = next_day.replace(
                     hour=rate['end'].hour,
                     minute=rate['end'].minute,
                     second=rate['end'].second
