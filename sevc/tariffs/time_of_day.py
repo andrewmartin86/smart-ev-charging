@@ -60,8 +60,9 @@ class TimeOfDayTariff(Tariff):
                     second=rate['end'].second
                 )
 
-        self._clear_rates()
+            self._rates.append(new_rate)
 
+        self._clear_rates()
         self._next_update += timedelta(days=1)
 
     def dict(self) -> dict:
