@@ -86,7 +86,7 @@ class Vehicle:
         if 'status' in array:
             self.__status = int(array['status'])
 
-    def __call__(self, locations: Dict[str, Location], tariffs: Dict[str, Tariff]):
+    def run(self, locations: Dict[str, Location], tariffs: Dict[str, Tariff]):
         """Run any appropriate actions for the vehicle"""
 
         now = datetime.now(UTC).astimezone()

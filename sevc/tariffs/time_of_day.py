@@ -27,7 +27,7 @@ class TimeOfDayTariff(Tariff):
         else:
             self.__obtain_time_rates()
 
-    def __call__(self):
+    def update(self):
         """Refresh the rates"""
 
         now = datetime.now(UTC).astimezone()

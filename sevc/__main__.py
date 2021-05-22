@@ -59,10 +59,10 @@ settings = Settings(base_dir + '/var/sevc.json')
 
 if not action_defined:
     for uuid in settings.tariffs:
-        settings.tariffs[uuid]()
+        settings.tariffs[uuid].update()
 
     for uuid in settings.vehicles:
-        settings.vehicles[uuid](settings.locations, settings.tariffs)
+        settings.vehicles[uuid].run(settings.locations, settings.tariffs)
 
     sys.exit(0)
 

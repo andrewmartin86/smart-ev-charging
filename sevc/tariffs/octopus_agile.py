@@ -30,7 +30,7 @@ class OctopusAgileTariff(Tariff):
         if self.__api_endpoint is None or self.__api_key is None:
             self.__obtain_api_details()
 
-    def __call__(self):
+    def update(self):
         """Update the rates from the API"""
 
         now = datetime.now(UTC).astimezone()
