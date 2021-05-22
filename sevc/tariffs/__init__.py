@@ -5,7 +5,6 @@ from typing import Dict, List, Optional, Union
 from dateutil.tz import UTC
 
 import sevc
-from sevc.locations import Location
 from sevc.settings import Settings
 
 
@@ -13,13 +12,13 @@ class Tariff:
     """An abstract for an electricity tariff"""
 
     uuid: str = ''
-    name: str = ''
 
     _rates: List[Dict[str, Union[datetime, float]]] = []
     _next_update: Optional[datetime] = None
 
     __module: str = ''
     __class: str = ''
+    __name: str = ''
 
     def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
         if array is None:
@@ -41,9 +40,9 @@ class Tariff:
             self.__class = self.__class__.__name__
 
         if 'name' in array:
-            self.name = array['name']
+            self.__name = array['name']
         else:
-            self.name = sevc.name_object(self.__class__)
+            self.__name = sevc.name_object(self.__class__)
 
         if 'next_update' in array:
             self._next_update = datetime.fromisoformat(array['next_update']).astimezone()
@@ -59,6 +58,11 @@ class Tariff:
                     'rate': float(rate['rate'])
                 })
 
+    def __str__(self):
+        """Return the tariff's name"""
+
+        return self.__name
+
     def __call__(self, settings: Settings):
         """Update the tariff rates"""
         pass
@@ -69,7 +73,7 @@ class Tariff:
         rtn = {
             'module': self.__module,
             'class': self.__class,
-            'name': self.name,
+            'name': self.__name,
             'next_update': self._next_update.astimezone().replace(second=0, microsecond=0).isoformat(),
             'rates': []
         }

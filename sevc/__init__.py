@@ -6,21 +6,6 @@ import re
 from typing import Dict, List, Optional
 
 
-def delete_assets(array: Dict, ids: List[int]) -> None:
-    """Delete assets from the dictionary"""
-
-    i: int = 0
-    to_delete: List[str] = []
-    for uuid in array:
-        i += 1
-        if i in ids and array[uuid].delete_allowed():
-            print('Deleting ' + array[uuid].name)
-            to_delete.append(uuid)
-
-    for uuid in to_delete:
-        array.pop(uuid)
-
-
 def friendly_class_name(cls: type):
     """Make the given class name more readable"""
 
@@ -97,27 +82,3 @@ def object_from_dict(array: dict, uuid: Optional[str] = None):
 
     cls = getattr(importlib.import_module(array['module']), array['class'])
     return cls(array, uuid=uuid)
-
-
-def print_list(array: Dict, ids: Optional[List[int]] = None) -> None:
-    """Display a list"""
-
-    i: int = 0
-
-    for uuid in array:
-        i += 1
-        if ids is None or len(ids) == 0 or i in ids:
-            print(str(i) + '. ' + array[uuid].name)
-
-
-def uuid_dict(array: Dict) -> Dict[int, str]:
-    """Create a dictionary of UUIDs"""
-
-    uuids: Dict[int, str] = {}
-    i: int = 0
-
-    for uuid in array:
-        i += 1
-        uuids[i] = uuid
-
-    return uuids

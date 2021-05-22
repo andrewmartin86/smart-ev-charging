@@ -63,13 +63,13 @@ class Settings:
                     continue
 
                 if self.assets[loc].tariff in to_delete:
-                    print('Cannot delete ' + self.assets[self.assets[loc].tariff].name + ' while it is being used in '
-                          + self.assets[loc].name)
+                    print('Cannot delete ' + str(self.assets[self.assets[loc].tariff])
+                          + ' while it is being used in ' + str(self.assets[loc]))
 
                     to_delete.remove(self.assets[loc].tariff)
 
         for uuid in to_delete:
-            print('Deleting ' + self.assets[uuid].name)
+            print('Deleting ' + str(self.assets[uuid]))
             self.assets.pop(uuid)
 
     def dict(self) -> dict:
@@ -97,7 +97,7 @@ class Settings:
         uuids = self.uuid_dict(asset_type, ids)
 
         for i in uuids:
-            print(str(i) + '. ' + self.assets[uuids[i]].name)
+            print(str(i) + '. ' + str(self.assets[uuids[i]]))
 
     def save(self) -> None:
         """Save the settings to the file"""

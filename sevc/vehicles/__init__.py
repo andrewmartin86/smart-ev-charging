@@ -1,13 +1,12 @@
 import uuid as py_uuid
 from datetime import datetime, time, timedelta
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from dateutil.tz import UTC
 
 import sevc
 from sevc.locations import Location
 from sevc.settings import Settings
-from sevc.tariffs import Tariff
 
 
 DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -32,7 +31,6 @@ class Vehicle:
     """An abstract for an electric vehicle"""
 
     uuid: str = ''
-    name: str = ''
 
     _battery: Optional[float] = None
     _default_name: Optional[str] = None
@@ -40,6 +38,7 @@ class Vehicle:
 
     __module: str = ''
     __class: str = ''
+    __name: str = ''
     __next_ping: Optional[datetime] = None
     __status: int = UNRESPONSIVE
     __finish_times: List[time] = []
@@ -64,9 +63,9 @@ class Vehicle:
             self.__class = self.__class__.__name__
 
         if 'name' in array:
-            self.name = array['name']
+            self.__name = array['name']
         else:
-            self.name = sevc.name_object(self.__class__, self._default_name)
+            self.__name = sevc.name_object(self.__class__, self._default_name)
 
         if 'battery' in array:
             self._battery = float(array['battery'])
@@ -86,6 +85,11 @@ class Vehicle:
 
         if 'status' in array:
             self.__status = int(array['status'])
+
+    def __str__(self):
+        """Return the vehicle's name"""
+
+        return self.__name
 
     def __call__(self, settings: Settings):
         """Run any appropriate actions for the vehicle"""
@@ -188,7 +192,7 @@ class Vehicle:
         rtn = {
             'module': self.__module,
             'class': self.__class,
-            'name': self.name,
+            'name': self.__name,
             'battery': self._battery,
             'next_ping': self.__next_ping.astimezone().replace(second=0, microsecond=0).isoformat(),
             'status': int(self.__status),
