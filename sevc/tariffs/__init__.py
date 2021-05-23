@@ -1,4 +1,3 @@
-import uuid as py_uuid
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Union
 
@@ -10,21 +9,14 @@ import sevc
 class Tariff:
     """An abstract for an electricity tariff"""
 
-    uuid: str = ''
-
     _rates: List[Dict[str, Union[datetime, float]]] = []
     _next_update: Optional[datetime] = None
 
     __name: str = ''
 
-    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
+    def __init__(self, array: Optional[dict] = None):
         if array is None:
             array = {}
-
-        if uuid is None:
-            self.uuid = str(py_uuid.uuid1())
-        else:
-            self.uuid = uuid
 
         if 'name' in array:
             self.__name = array['name']

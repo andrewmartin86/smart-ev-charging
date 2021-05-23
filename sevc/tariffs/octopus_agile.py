@@ -15,11 +15,11 @@ class OctopusAgileTariff(Tariff):
     __api_endpoint: Optional[str] = None
     __api_key: Optional[str] = None
 
-    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
+    def __init__(self, array: Optional[dict] = None):
         if array is None:
             array = {}
 
-        super().__init__(array, uuid)
+        super().__init__(array)
 
         if 'api_endpoint' in array:
             self.__api_endpoint = array['api_endpoint']
@@ -30,7 +30,7 @@ class OctopusAgileTariff(Tariff):
         if self.__api_endpoint is None or self.__api_key is None:
             self.__obtain_api_details()
 
-    def call(self, assets: dict):
+    def __call__(self, assets: dict):
         """Update the rates from the API"""
 
         now = datetime.now(UTC).astimezone()

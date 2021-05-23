@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import uuid as py_uuid
 
 import sevc
 from sevc.locations import Location
@@ -107,17 +108,17 @@ if args.delete:
 if args.new:
     if args.tariff is not None:
         tariff = sevc.instantiate_subclass(Tariff)
-        settings.assets[tariff.uuid] = tariff
+        settings.assets[str(py_uuid.uuid1())] = tariff
         settings.save()
 
     if args.location is not None:
         location = Location(assets=settings.assets)
-        settings.assets[location.uuid] = location
+        settings.assets[str(py_uuid.uuid1())] = location
         settings.save()
 
     if args.vehicle is not None:
         vehicle = sevc.instantiate_subclass(Vehicle)
-        settings.assets[vehicle.uuid] = vehicle
+        settings.assets[str(py_uuid.uuid1())] = vehicle
         settings.save()
 
     sys.exit(0)

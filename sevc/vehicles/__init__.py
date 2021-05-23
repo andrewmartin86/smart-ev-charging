@@ -1,4 +1,3 @@
-import uuid as py_uuid
 from datetime import datetime, time, timedelta
 from typing import List, Optional
 
@@ -29,8 +28,6 @@ STATUS_WAIT = {
 class Vehicle:
     """An abstract for an electric vehicle"""
 
-    uuid: str = ''
-
     _battery: Optional[float] = None
     _default_name: Optional[str] = None
     _default_battery: Optional[float] = None
@@ -40,14 +37,9 @@ class Vehicle:
     __status: int = UNRESPONSIVE
     __finish_times: List[time] = []
 
-    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
+    def __init__(self, array: Optional[dict] = None):
         if array is None:
             array = {}
-
-        if uuid is None:
-            self.uuid = str(py_uuid.uuid1())
-        else:
-            self.uuid = uuid
 
         if 'name' in array:
             self.__name = array['name']

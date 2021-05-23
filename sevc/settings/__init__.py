@@ -31,15 +31,15 @@ class Settings:
 
         if 'tariffs' in parsed:
             for uuid in parsed['tariffs']:
-                self.assets[uuid] = sevc.object_from_dict(parsed['tariffs'][uuid], uuid)
+                self.assets[uuid] = sevc.object_from_dict(parsed['tariffs'][uuid])
 
         if 'locations' in parsed:
             for uuid in parsed['locations']:
-                self.assets[uuid] = Location(parsed['locations'][uuid], uuid)
+                self.assets[uuid] = Location(parsed['locations'][uuid])
 
         if 'vehicles' in parsed:
             for uuid in parsed['vehicles']:
-                self.assets[uuid] = sevc.object_from_dict(parsed['vehicles'][uuid], uuid)
+                self.assets[uuid] = sevc.object_from_dict(parsed['vehicles'][uuid])
 
     def __call__(self):
         """Update everything"""

@@ -1,4 +1,3 @@
-import uuid as py_uuid
 from typing import Dict, Optional
 
 import requests
@@ -13,7 +12,6 @@ API_KEY = 'Av73UhSnMiyn0ikU68pvish4BGguc_C5RnatjNg4DQSUhEuv8XqojS6Axojv3LjH'
 class Location:
     """A geo-location, where a vehicle can charge"""
 
-    uuid: str = ''
     tariff: str = ''
     power: Optional[float] = None
 
@@ -23,14 +21,9 @@ class Location:
     __south: float = 0
     __west: float = 0
 
-    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None, assets: Optional[dict] = None):
+    def __init__(self, array: Optional[dict] = None, assets: Optional[dict] = None):
         if array is None:
             array = {}
-
-        if uuid is None:
-            self.uuid = str(py_uuid.uuid1())
-        else:
-            self.uuid = uuid
 
         if 'name' in array:
             self.__name = array['name']

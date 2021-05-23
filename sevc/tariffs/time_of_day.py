@@ -11,11 +11,11 @@ class TimeOfDayTariff(Tariff):
 
     __time_rates: List[Dict[str, Union[time, float]]] = []
 
-    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
+    def __init__(self, array: Optional[dict] = None):
         if array is None:
             array = {}
 
-        super().__init__(array, uuid)
+        super().__init__(array)
 
         if 'time_rates' in array:
             for rate in array['time_rates']:

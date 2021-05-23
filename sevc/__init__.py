@@ -3,7 +3,7 @@ import inspect
 import os
 import pkgutil
 import re
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 
 def friendly_class_name(cls: type):
@@ -77,8 +77,8 @@ def name_object(cls: type, default_name: Optional[str] = None) -> str:
     return default_name
 
 
-def object_from_dict(array: dict, uuid: Optional[str] = None):
+def object_from_dict(array: dict):
     """Create an object of the correct class from a dictionary"""
 
     cls = getattr(importlib.import_module(array['module']), array['class'])
-    return cls(array, uuid=uuid)
+    return cls(array)

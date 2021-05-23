@@ -47,7 +47,7 @@ class TeslaVehicle(Vehicle):
     __token_expires: Optional[datetime] = None
     __vehicle_id: Optional[str] = None
 
-    def __init__(self, array: Optional[dict] = None, uuid: Optional[str] = None):
+    def __init__(self, array: Optional[dict] = None):
         if array is None:
             array = {}
 
@@ -70,7 +70,7 @@ class TeslaVehicle(Vehicle):
         else:
             self.__obtain_vehicle_id()
 
-        super().__init__(array, uuid)
+        super().__init__(array)
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""
