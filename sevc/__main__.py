@@ -75,7 +75,7 @@ if args.list:
 
     if args.vehicle is not None or not asset_defined:
         print('VEHICLES')
-        settings.print_list(Vehicle, args.vehicles)
+        settings.print_list(Vehicle, args.vehicle)
         print()
 
     sys.exit(0)
