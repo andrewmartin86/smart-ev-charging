@@ -49,8 +49,13 @@ class Tariff:
     def dict(self) -> dict:
         """Output the object as a dictionary"""
 
+        module = self.__class__.__module__
+
+        if not module.startswith('sevc.tariffs.'):
+            module = 'sevc.tariffs.' + module
+
         rtn = {
-            'module': 'sevc.tariffs.' + self.__class__.__module__,
+            'module': module,
             'class': self.__class__.__name__,
             'name': self.__name,
             'next_update': self._next_update.astimezone().replace(second=0, microsecond=0).isoformat(),

@@ -168,8 +168,13 @@ class Vehicle:
     def dict(self) -> dict:
         """Output the object as a dictionary"""
 
+        module = self.__class__.__module__
+
+        if not module.startswith('sevc.vehicles.'):
+            module = 'sevc.vehicles.' + module
+
         rtn = {
-            'module': 'sevc.vehicles.' + self.__class__.__module__,
+            'module': module,
             'class': self.__class__.__name__,
             'name': self.__name,
             'battery': self._battery,
