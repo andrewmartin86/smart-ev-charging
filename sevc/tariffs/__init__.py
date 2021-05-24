@@ -50,7 +50,7 @@ class Tariff:
         """Output the object as a dictionary"""
 
         rtn = {
-            'module': self.__class__.__module__,
+            'module': 'sevc.tariffs.' + self.__class__.__module__,
             'class': self.__class__.__name__,
             'name': self.__name,
             'next_update': self._next_update.astimezone().replace(second=0, microsecond=0).isoformat(),

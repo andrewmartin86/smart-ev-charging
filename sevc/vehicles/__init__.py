@@ -169,7 +169,7 @@ class Vehicle:
         """Output the object as a dictionary"""
 
         rtn = {
-            'module': self.__class__.__module__,
+            'module': 'sevc.vehicles.' + self.__class__.__module__,
             'class': self.__class__.__name__,
             'name': self.__name,
             'battery': self._battery,
