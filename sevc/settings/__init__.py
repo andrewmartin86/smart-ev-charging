@@ -103,7 +103,7 @@ class Settings:
         """Save the settings to the file"""
 
         file = open(self.__filename, 'w')
-        json.dump(self.dict(), file, separators=(',', ':'))
+        json.dump(self.dict(), file, separators=(',', ':'), indent=2)
         file.close()
 
     def uuid_dict(self, asset_type: type, ids: Optional[List[int]] = None) -> Dict[int, str]:
