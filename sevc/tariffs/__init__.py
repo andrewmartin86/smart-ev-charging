@@ -32,8 +32,8 @@ class Tariff:
         if 'rates' in array:
             for rate in array['rates']:
                 self._rates.append({
-                    'start': datetime.fromisoformat(rate['start']),
-                    'end': datetime.fromisoformat(rate['end']),
+                    'start': datetime.fromisoformat(rate['start']).astimezone(UTC),
+                    'end': datetime.fromisoformat(rate['end']).astimezone(UTC),
                     'rate': float(rate['rate'])
                 })
 
@@ -58,14 +58,14 @@ class Tariff:
             'module': module,
             'class': self.__class__.__name__,
             'name': self.__name,
-            'next_update': self._next_update.astimezone().replace(second=0, microsecond=0).isoformat(),
+            'next_update': self._next_update.astimezone(UTC).replace(second=0, microsecond=0).isoformat(),
             'rates': []
         }
 
         for rate in self._rates:
             rtn['rates'].append({
-                'start': rate['start'].astimezone().replace(second=0, microsecond=0).isoformat(),
-                'end': rate['end'].astimezone().replace(second=0, microsecond=0).isoformat(),
+                'start': rate['start'].astimezone(UTC).replace(second=0, microsecond=0).isoformat(),
+                'end': rate['end'].astimezone(UTC).replace(second=0, microsecond=0).isoformat(),
                 'rate': float(rate['rate'])
             })
 

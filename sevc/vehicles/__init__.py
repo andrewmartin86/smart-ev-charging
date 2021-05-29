@@ -58,7 +58,7 @@ class Vehicle:
             self.__obtain_finish_times()
 
         if 'next_ping' in array:
-            self.__next_ping = datetime.fromisoformat(array['next_ping'])
+            self.__next_ping = datetime.fromisoformat(array['next_ping']).astimezone(tz.UTC)
         else:
             self.__next_ping = datetime.now(tz.UTC)
 
@@ -129,7 +129,7 @@ class Vehicle:
 
         finish_time = self.__next_finish(datetime.now(tz.gettz(location.time_zone)))
         start_time = tariff.optimal_charge_time(charge_time, finish_time)
-        now = datetime.now(tz.UTC).astimezone()
+        now = datetime.now(tz.UTC)
 
         if start_time <= now and self._start_charging():
             self.__next_ping = finish_time + timedelta(minutes=30)  # leave the vehicle alone while charging
@@ -178,7 +178,7 @@ class Vehicle:
             'class': self.__class__.__name__,
             'name': self.__name,
             'battery': self._battery,
-            'next_ping': self.__next_ping.astimezone().replace(second=0, microsecond=0).isoformat(),
+            'next_ping': self.__next_ping.astimezone(tz.UTC).replace(second=0, microsecond=0).isoformat(),
             'status': int(self.__status),
             'finish_times': []
         }
