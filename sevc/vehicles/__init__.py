@@ -1,7 +1,7 @@
 from datetime import datetime, time, timedelta
+from dateutil import tz
 from typing import List, Optional
 
-from dateutil.tz import UTC
 
 import sevc
 from sevc.locations import Location
@@ -60,7 +60,7 @@ class Vehicle:
         if 'next_ping' in array:
             self.__next_ping = datetime.fromisoformat(array['next_ping'])
         else:
-            self.__next_ping = datetime.now(UTC)
+            self.__next_ping = datetime.now(tz.UTC)
 
         if 'status' in array:
             self.__status = int(array['status'])
@@ -73,7 +73,7 @@ class Vehicle:
     def __call__(self, assets: dict):
         """Run any appropriate actions for the vehicle"""
 
-        now = datetime.now(UTC).astimezone()
+        now = datetime.now(tz.UTC).astimezone()
 
         if now < self.__next_ping:
             return
@@ -127,9 +127,9 @@ class Vehicle:
             self.__status = CHARGING
             return
 
-        finish_time = self.__next_finish()
+        finish_time = self.__next_finish(datetime.now(tz.gettz(location.time_zone)))
         start_time = tariff.optimal_charge_time(charge_time, finish_time)
-        now = datetime.now(UTC).astimezone()
+        now = datetime.now(tz.UTC).astimezone()
 
         if start_time <= now and self._start_charging():
             self.__next_ping = finish_time + timedelta(minutes=30)  # leave the vehicle alone while charging
@@ -198,13 +198,10 @@ class Vehicle:
 
         return timedelta(seconds=round(charge * 3600 / power) + 600)  # add a 10 minute buffer
 
-    def __next_finish(self, date: Optional[datetime] = None) -> datetime:
+    def __next_finish(self, date: datetime) -> datetime:
         """Calculate the next charge finish time"""
 
-        now = datetime.now(UTC).astimezone()
-
-        if date is None:
-            date = now
+        now = datetime.now(date.tzinfo)
 
         finish = self.__finish_times[date.weekday()]
         rtn = date.replace(hour=finish.hour, minute=finish.minute, second=finish.second)
@@ -213,7 +210,7 @@ class Vehicle:
             # Today's finish time has already passed: return tomorrow's
             return self.__next_finish(date + timedelta(days=1))
 
-        return rtn.astimezone(UTC)
+        return rtn.astimezone(tz.UTC)
 
     def __obtain_battery_size(self) -> None:
         """Get the battery size"""
