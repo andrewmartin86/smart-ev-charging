@@ -63,7 +63,11 @@ class TimeOfDayTariff(Tariff):
             self._rates.append(new_rate)
 
         self._clear_rates()
-        self._next_update = self._rates[-1]['end'] - timedelta(days=1)
+
+        if len(self._rates) == 0:
+            self._next_update = datetime.now(UTC)
+        else:
+            self._next_update = self._rates[-1]['end'] - timedelta(days=1)
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""

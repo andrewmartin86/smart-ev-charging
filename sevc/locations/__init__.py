@@ -16,7 +16,7 @@ class Location:
 
     tariff: str = ''
     power: Optional[float] = None
-    time_zone: Optional[tzinfo] = None
+    time_zone: str = 'UTC'
 
     __name: str = ''
     __north: float = 0
@@ -38,8 +38,8 @@ class Location:
         else:
             self.__obtain_coordinates()
 
-        if 'timezone' in array:
-            self.time_zone = tz.gettz(array['timezone'])
+        if 'time_zone' in array:
+            self.time_zone = array['time_zone']
         else:
             self.__obtain_timezone()
 
@@ -80,7 +80,8 @@ class Location:
             'name': self.__name,
             'tariff': self.tariff,
             'coordinates': [self.__north, self.__east, self.__south, self.__west],
-            'power': self.power
+            'power': self.power,
+            'time_zone': self.time_zone
         }
 
     def __obtain_coordinates(self) -> None:
@@ -131,17 +132,17 @@ class Location:
     def __obtain_timezone(self) -> None:
         """Obtain the timezone for this location"""
 
-        request = requests.get('https://dev.virtualearth.net/REST/v1/TimeZone', {
-            'point': str(self.__north) + ',' + str(self.__west),
-            'key': API_KEY
-        })
+        request = requests.get(
+            'https://dev.virtualearth.net/REST/v1/TimeZone/' + str(self.__north) + ',' + str(self.__west),
+            {'key': API_KEY}
+        )
 
         if request.status_code != 200:
             return
 
         parsed = request.json()
 
-        for location in parsed['timeZoneAtLocation']:
-            for timezone in location['timeZone']:
-                self.time_zone = tz.gettz(timezone['ianaTimeZoneId'])
+        for resource_sets in parsed['resourceSets']:
+            for resource in resource_sets['resources']:
+                self.time_zone = resource['timeZone']['ianaTimeZoneId']
                 return
