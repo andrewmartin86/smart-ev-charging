@@ -1,3 +1,5 @@
+from datetime import tzinfo
+from dateutil import tz
 from typing import Dict, Optional
 
 import requests
@@ -14,6 +16,7 @@ class Location:
 
     tariff: str = ''
     power: Optional[float] = None
+    time_zone: Optional[tzinfo] = None
 
     __name: str = ''
     __north: float = 0
@@ -34,6 +37,11 @@ class Location:
             self.__north, self.__east, self.__south, self.__west = array['coordinates']
         else:
             self.__obtain_coordinates()
+
+        if 'timezone' in array:
+            self.time_zone = tz.gettz(array['timezone'])
+        else:
+            self.__obtain_timezone()
 
         if 'tariff' in array:
             self.tariff = array['tariff']
@@ -119,3 +127,21 @@ class Location:
                 print(str(i) + '. ' + str(assets[tariff_uuids[i]]))
 
             self.tariff = tariff_uuids[int(input('Please enter the tariff to use at this location: '))]
+
+    def __obtain_timezone(self) -> None:
+        """Obtain the timezone for this location"""
+
+        request = requests.get('https://dev.virtualearth.net/REST/v1/TimeZone', {
+            'point': str(self.__north) + ',' + str(self.__west),
+            'key': API_KEY
+        })
+
+        if request.status_code != 200:
+            return
+
+        parsed = request.json()
+
+        for location in parsed['timeZoneAtLocation']:
+            for timezone in location['timeZone']:
+                self.time_zone = tz.gettz(timezone['ianaTimeZoneId'])
+                return
