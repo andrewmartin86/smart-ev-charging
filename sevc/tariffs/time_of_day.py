@@ -43,7 +43,7 @@ class TimeOfDayTariff(Tariff):
         next_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
         if len(self._rates) > 0:
-            next_day = self._rates[-1]['end']
+            next_day = self._rates[-1]['end'].astimezone(tz.gettz(self.__time_zone))
 
         for rate in self.__time_rates:
             new_rate = {
