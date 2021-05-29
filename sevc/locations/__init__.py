@@ -1,5 +1,3 @@
-from datetime import tzinfo
-from dateutil import tz
 from typing import Dict, Optional
 
 import requests
