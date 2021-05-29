@@ -1,7 +1,6 @@
 from datetime import datetime, time, timedelta
+from dateutil import tz
 from typing import Dict, List, Optional, Union
-
-from dateutil.tz import UTC
 
 from sevc.tariffs import Tariff
 
@@ -10,12 +9,18 @@ class TimeOfDayTariff(Tariff):
     """Time-of-day tariff"""
 
     __time_rates: List[Dict[str, Union[time, float]]] = []
+    __time_zone: str = 'UTC'
 
     def __init__(self, array: Optional[dict] = None):
         if array is None:
             array = {}
 
         super().__init__(array)
+
+        if 'time_zone' in array:
+            self.__time_zone = array['time_zone']
+        else:
+            self.__time_zone = input('Please enter this tariff\'s time zone (e.g. Europe/London): ')
 
         if 'time_rates' in array:
             for rate in array['time_rates']:
@@ -30,7 +35,7 @@ class TimeOfDayTariff(Tariff):
     def __call__(self, assets: dict):
         """Refresh the rates"""
 
-        now = datetime.now(UTC).astimezone()
+        now = datetime.now(tz.gettz(self.__time_zone))
 
         if self._next_update is not None and self._next_update > now:
             return
@@ -65,9 +70,9 @@ class TimeOfDayTariff(Tariff):
         self._clear_rates()
 
         if len(self._rates) == 0:
-            self._next_update = datetime.now(UTC)
+            self._next_update = datetime.now(tz.UTC)
         else:
-            self._next_update = self._rates[-1]['end'] - timedelta(days=1)
+            self._next_update = (self._rates[-1]['end'] - timedelta(days=1)).astimezone(tz.UTC)
 
     def dict(self) -> dict:
         """Output the object as a dictionary"""

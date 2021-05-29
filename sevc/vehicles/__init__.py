@@ -202,7 +202,6 @@ class Vehicle:
         """Calculate the next charge finish time"""
 
         now = datetime.now(date.tzinfo)
-
         finish = self.__finish_times[date.weekday()]
         rtn = date.replace(hour=finish.hour, minute=finish.minute, second=finish.second)
 
