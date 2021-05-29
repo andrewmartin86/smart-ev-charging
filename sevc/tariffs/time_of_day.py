@@ -80,7 +80,8 @@ class TimeOfDayTariff(Tariff):
         rtn = {
             **super().dict(),
             **{
-                'time_rates': []
+                'time_rates': [],
+                'time_zone': self.__time_zone
             }
         }
 
