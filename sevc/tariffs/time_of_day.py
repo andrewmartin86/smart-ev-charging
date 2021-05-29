@@ -51,19 +51,19 @@ class TimeOfDayTariff(Tariff):
                     hour=rate['start'].hour,
                     minute=rate['start'].minute,
                     second=rate['start'].second
-                ),
-                'end': next_day,
+                ).astimezone(tz.UTC),
+                'end': None,
                 'rate': rate['rate']
             }
 
             if rate['end'].hour == 0 and rate['end'].minute == 0 and rate['end'].second == 0:
-                new_rate['end'] += timedelta(days=1)
+                new_rate['end'] = (next_day + timedelta(days=1)).astimezone(tz.UTC)
             else:
                 new_rate['end'] = next_day.replace(
                     hour=rate['end'].hour,
                     minute=rate['end'].minute,
                     second=rate['end'].second
-                )
+                ).astimezone(tz.UTC)
 
             self._rates.append(new_rate)
 
